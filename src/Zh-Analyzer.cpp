@@ -14,7 +14,6 @@
 #include "ExRootAnalysis/ExRootTreeReader.h"
 
 
-
 int main(int argc, const char *argv[] ) 
 {
 
@@ -38,6 +37,14 @@ int main(int argc, const char *argv[] )
 //	TTree *Delphes = (TTree*)f->Get("Delphes");
 //
 //	Delphes->Print();
+	TStyle* myStyle = new TStyle("myStyle","My own Root Style");
+	
+//	myStyle->SetTitleSize(0.3); 
+//	myStyle->SetTitleX(0.3); 
+	myStyle->SetTitleSize(0.04,"xy"); 
+//	myStyle->SetLabelSize(0.06,"xy"); 
+	gROOT->SetStyle("myStyle");
+
 
 	// Create chain of root trees
 	TChain chain("Delphes");
@@ -49,49 +56,106 @@ int main(int argc, const char *argv[] )
 	
 	// Get pointers to branches used in this analysis
 	TClonesArray *branchJet = treeReader->UseBranch("Jet");
-	TClonesArray *branchElectron = treeReader->UseBranch("Electron");
+	TClonesArray *branchMuon = treeReader->UseBranch("Muon");
 	
 	// Book histograms
-	TH1 *histJetPT = new TH1F("jet_pt", "jet P_{T}", 100, 0.0, 100.0);
-	TH1 *histMass = new TH1F("mass", "M_{inv}(e_{1}, e_{2})", 100, 40.0, 140.0);
+	TH1 *histo_m_inv_jj     = new TH1F("m_inv_jj", "", 300, 0.0, 300.0);
+	TH1 *histo_m_inv_mumu   = new TH1F("m_inv_mumu", "", 100, 40.0, 140.0);
+	TH1 *histo_m_inv_mumujj = new TH1F("m_inv_mumujj", "", 100, 0.0, 1000.0);
+	TH1 *histo_pt_mumu      = new TH1F("pt_mumu", "", 100, 0.0, 1000.0);
 	
+	Muon *mu_A;
+	Muon *mu_B;
+	Jet *jet_A;
+	Jet *jet_B;
+	TLorentzVector p_mumu; 
+	TLorentzVector p_jj; 
+	TLorentzVector p_mumujj; 
+
 	// Loop over all events
 	for(Int_t entry = 0; entry < numberOfEntries; ++entry)
 	{
+
 	  // Load selected branches with data from specified event
 	  treeReader->ReadEntry(entry);
 	
 	  // If event contains at least 1 jet
-	  if(branchJet->GetEntries() > 0)
+	  if(branchJet->GetEntries() > 1)
 	  {
+
 	    // Take first jet
-	    Jet *jet = (Jet*) branchJet->At(0);
+	    jet_A = (Jet*) branchJet->At(0);
+	    jet_B = (Jet*) branchJet->At(1);
+
+		 p_jj = jet_A->P4()+jet_B->P4();
 	
 	    // Plot jet transverse momentum
-	    histJetPT->Fill(jet->PT);
-	
-	    // Print jet transverse momentum
-		 std::cout << "Jet pt: "<<jet->PT << std::endl;
+	    histo_m_inv_jj->Fill( p_jj.M() );
 	  }
 	
-	  Electron *elec1, *elec2;
 	
 	  // If event contains at least 2 electrons
-	  if(branchElectron->GetEntries() > 1)
+	  if(branchMuon->GetEntries() > 1)
 	  {
 	    // Take first two electrons
-	    elec1 = (Electron *) branchElectron->At(0);
-	    elec2 = (Electron *) branchElectron->At(1);
+	    mu_A = (Muon *) branchMuon->At(0);
+	    mu_B = (Muon *) branchMuon->At(1);
 
+		 p_mumu = mu_A->P4()+mu_B->P4();
 
 	    // Plot their invariant mass
-	    histMass->Fill(((elec1->P4()) + (elec2->P4())).M());
+	    histo_m_inv_mumu->Fill(p_mumu.M());
+	    histo_pt_mumu->Fill(p_mumu.Pt());
 	  }
+
+	  p_mumujj = p_mumu + p_jj;
+
+
+	   histo_m_inv_mumujj->Fill( p_mumujj.M() );
+
 	}
 	
+	TCanvas canvas("canvas", "canvas", 600, 600);
+
+
+
 	// Show resulting histograms
-	histJetPT->Draw();
-	histMass->Draw();
+	// histo_m_inv_jj->Draw();
+	gPad->SetLeftMargin(0.14);
+	gPad->SetBottomMargin(0.15);
+	
+	histo_m_inv_mumu->GetXaxis()->SetTitle("m_{inv} (#mu^{-} #mu^{+}) [GeV/c^{2}]");
+	histo_m_inv_mumu->GetYaxis()->SetTitle("Entries");
+	histo_m_inv_mumu->GetYaxis()->SetTitleOffset(1.5);
+	histo_m_inv_mumu->Draw();
+	canvas.SaveAs("./figures/M_inv_mumu.pdf");
+
+	canvas.Clear();
+
+	histo_m_inv_jj->GetXaxis()->SetTitle("m_{inv} (jj) [GeV/c^{2}]");
+	histo_m_inv_jj->GetYaxis()->SetTitle("Entries");
+	histo_m_inv_jj->GetYaxis()->SetTitleOffset(1.5);
+	histo_m_inv_jj->Draw(); canvas.SaveAs("./figures/M_inv_jj.pdf");
+
+	canvas.Clear();
+
+	histo_m_inv_mumujj->GetXaxis()->SetTitle("m_{inv} (#mu^{-} #mu^{+} jj) [GeV/c^{2}]");
+	histo_m_inv_mumujj->GetYaxis()->SetTitle("Entries");
+	histo_m_inv_mumujj->GetYaxis()->SetTitleOffset(1.5);
+	histo_m_inv_mumujj->Draw();
+
+	canvas.SaveAs("./figures/M_inv_mumujj.pdf");
+
+	canvas.Clear();
+
+	histo_pt_mumu->GetXaxis()->SetTitle("p_{T} (#mu^{-} #mu^{+}) [GeV]");
+	histo_pt_mumu->GetYaxis()->SetTitle("Entries");
+	histo_pt_mumu->GetYaxis()->SetTitleOffset(1.5);
+	histo_pt_mumu->Draw();
+
+	canvas.SaveAs("./figures/pt_mumu.pdf");
+
+
 
 	return 0;
 
