@@ -77,6 +77,8 @@
  /home/de3u14/lib/build/hep/root/include/TPoint.h \
  /home/de3u14/lib/build/hep/root/include/TAttCanvas.h \
  /home/de3u14/lib/build/hep/root/include/TCanvasImp.h \
+ /home/de3u14/lib/build/hep/root/include/TClonesArray.h \
+ /home/de3u14/lib/build/hep/root/include/TChain.h \
  /home/de3u14/lib/build/hep/root/include/TVector3.h \
  /home/de3u14/lib/build/hep/root/include/TError.h \
  /home/de3u14/lib/build/hep/root/include/TVector2.h \
@@ -90,4 +92,13 @@
  /home/de3u14/lib/build/hep/root/include/TMatrixFUtilsfwd.h \
  /home/de3u14/lib/build/hep/root/include/TLorentzVector.h \
  /home/de3u14/lib/build/hep/root/include/TMath.h \
- /home/de3u14/lib/build/hep/root/include/TRotation.h ../inc/Zh-Analyzer.h
+ /home/de3u14/lib/build/hep/root/include/TRotation.h ../inc/Zh-Analyzer.h \
+ /home/de3u14/lib/links/inc/classes/DelphesClasses.h \
+ /home/de3u14/lib/build/hep/root/include/TRef.h \
+ /home/de3u14/lib/build/hep/root/include/TObject.h \
+ /home/de3u14/lib/build/hep/root/include/TRefArray.h \
+ /home/de3u14/lib/build/hep/root/include/TProcessID.h \
+ /home/de3u14/lib/links/inc/classes/SortableObject.h \
+ /home/de3u14/lib/build/hep/root/include/TMath.h \
+ /home/de3u14/lib/links/inc/ExRootAnalysis/ExRootTreeReader.h \
+ /home/de3u14/lib/build/hep/root/include/TNamed.h

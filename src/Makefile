@@ -2,7 +2,7 @@
 OBJ_Zh_Analyzer = ../lib/Zh-Analyzer.cpp.o
 
 ../bin/Zh-Analyzer: $(OBJ_Zh_Analyzer)
-	$(CC) $^ $(CLFLAGS) -o $@
+	LD_LIBRARY_PATH=/home/de3u14/lib/links/libs $(CC) $^ $(CLFLAGS) -o $@
 
 all : ../bin/Zh-Analyzer
 
@@ -21,7 +21,10 @@ CC     = g++
 #CC     = icc
 
 CCFLAGS = -I../inc/ -I$(INCDIRLINK) $(ROOTCFLAGS) -MMD -MF .depend_cpp
-CLFLAGS = $(ROOTLFLAGS)
+CLFLAGS = $(DELPHES_LFLAGS) $(ROOTLFLAGS) 
+
+# Delphes
+DELPHES_LFLAGS = -L$(LIBDIRLINK) -lDelphes
 
 # ROOT
 ROOTCFLAGS = `root-config --cflags`
