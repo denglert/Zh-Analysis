@@ -1,5 +1,6 @@
 
-OBJ_Zh_Analyzer = ../lib/Zh-Analyzer.cpp.o
+OBJ_Zh_Analyzer = ../lib/Zh-Analyzer.cpp.o $(OBJ_core)
+OBJ_core = ../lib/GraphTools.cpp.o ../lib/UtilFunctions.cpp.o ../lib/config.cpp.o ../lib/AnalysisFW.cpp.o
 
 ../bin/Zh-Analyzer: $(OBJ_Zh_Analyzer)
 	LD_LIBRARY_PATH=/home/de3u14/lib/links/libs $(CC) $^ $(CLFLAGS) -o $@
@@ -23,10 +24,10 @@ CC     = g++
 CCFLAGS = -I../inc/ -I$(INCDIRLINK) $(ROOTCFLAGS) -MMD -MF .depend_cpp
 CLFLAGS = $(DELPHES_LFLAGS) $(ROOTLFLAGS) 
 
-# Delphes
+# Delphes flags
 DELPHES_LFLAGS = -L$(LIBDIRLINK) -lDelphes
 
-# ROOT
+# ROOT flags
 ROOTCFLAGS = `root-config --cflags`
 ROOTLFLAGS = -L/home/de3u14/lib/build/hep/root/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lm -ldl
 
