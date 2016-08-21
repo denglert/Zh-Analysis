@@ -29,7 +29,8 @@ int main(int argc, const char *argv[] )
 
 	AnaFW.Analyzer (treeReader);
 
-	AnaFW.CreatePlots();
+	std::cout << std::endl;
+	AnaFW.MakePlots();
 
 	return 0;
 

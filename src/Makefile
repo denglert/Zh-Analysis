@@ -1,6 +1,5 @@
-
 OBJ_Zh_Analyzer = ../lib/Zh-Analyzer.cpp.o $(OBJ_core)
-OBJ_core = ../lib/GraphTools.cpp.o ../lib/UtilFunctions.cpp.o ../lib/config.cpp.o ../lib/AnalysisFW.cpp.o
+OBJ_core = ../lib/GraphTools.cpp.o ../lib/UtilFunctions.cpp.o ../lib/config.cpp.o ../lib/AnalysisFW.cpp.o ../lib/AnalysisFW-Analyzer.cpp.o
 
 ../bin/Zh-Analyzer: $(OBJ_Zh_Analyzer)
 	LD_LIBRARY_PATH=/home/de3u14/lib/links/libs $(CC) $^ $(CLFLAGS) -o $@
@@ -21,7 +20,10 @@ INCDIRLINK = $(HOME)/lib/links/inc
 CC     = g++
 #CC     = icc
 
-CCFLAGS = -I../inc/ -I$(INCDIRLINK) $(ROOTCFLAGS) -MMD -MF .depend_cpp
+C++11   = -std=c++11
+WALL    = -Wall
+
+CCFLAGS = -I../inc/ -I$(INCDIRLINK) $(ROOTCFLAGS) $(C++11) -MMD -MF .depend_cpp
 CLFLAGS = $(DELPHES_LFLAGS) $(ROOTLFLAGS) 
 
 # Delphes flags

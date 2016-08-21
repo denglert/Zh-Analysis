@@ -1,0 +1,513 @@
+#include "AnalysisFW.h"
+
+////////////////////
+//                //
+// -- Analyzer -- //
+//                //
+////////////////////
+
+void AnalysisFW::Analyzer( ExRootTreeReader* reader)
+{
+
+	// - Get pointers to branches used in this analysis
+	TClonesArray *branchParticle 				= reader->UseBranch("Particle");
+	TClonesArray *branchElectron 				= reader->UseBranch("Electron");
+	TClonesArray *branchPhoton 				= reader->UseBranch("Photon");
+	TClonesArray *branchMuon   				= reader->UseBranch("Muon");
+	TClonesArray *branchTrack 					= reader->UseBranch("Track");
+	TClonesArray *branchTower 					= reader->UseBranch("Tower");
+	TClonesArray *branchEFlowTrack         = reader->UseBranch("EFlowTrack");
+	TClonesArray *branchEFlowTower         = reader->UseBranch("EFlowTower");
+	TClonesArray *branchEFlowMuon          = reader->UseBranch("EFlowMuon");
+	TClonesArray *branchEFlowNeutralHadron = reader->UseBranch("EFlowNeutralHadron");
+	TClonesArray *branchJet  		         = reader->UseBranch("Jet");
+
+	// - Create physics objects
+	Muon *muA 				 = NULL;
+	Muon *muB 				 = NULL;
+	GenParticle *muA_gen  = NULL;
+	GenParticle *muB_gen  = NULL;
+	Jet *jetA 				 = NULL;
+	Jet *jetB 				 = NULL;
+	GenParticle *particle = NULL;
+	GenParticle *g0mother = NULL;
+	GenParticle *g1mother = NULL;
+	GenParticle *g2mother = NULL;
+	GenParticle *g3mother = NULL;
+	GenParticle *g4mother = NULL;
+	Track *track 			 = NULL;
+	Tower *tower 			 = NULL;
+	TObject *object       = NULL;
+
+	// - Lorentz Four-momenta
+	TLorentzVector p_mumu; 
+	TLorentzVector p_jj; 
+	TLorentzVector p_mumujj; 
+	TLorentzVector momentum;
+
+	TLorentzVector p_jetA_Const;
+	TLorentzVector p_jetB_Const;
+
+	////////////////////////
+	//                    //
+	// --- Event loop --- //
+	//                    //
+	////////////////////////
+	
+	Long64_t nEntries = reader->GetEntries();
+	if (nEvents == -1) {nEvents = nEntries;}
+	std::cout << "nEvents: " << nEvents << std::endl;
+	// - Loop over all events -- //
+	for(Int_t iEv = 0; iEv < nEvents; ++iEv)
+	{
+	
+		double percent = iEv/double(nEvents)*100.0;
+  		progress_bar (percent);
+	
+		// - Load Event -- //
+		reader->ReadEntry(iEv);
+		
+		////////////////
+		// -- Jets -- //
+		////////////////
+
+
+		int nJets = branchJet->GetEntries();
+		int nBJets = 0;
+		histo.nObj[jet]->Fill(nJets);
+
+		// -- First jet iterator -- //
+		for(int iJet = 0; iJet < nJets; iJet++)
+		{
+
+			p_jetA_Const = TLorentzVector(0.0,0.0,0.0,0.0);
+
+			// Get Jet A
+	   	jetA = (Jet*) branchJet->At(iJet);
+
+			// Get number of constituents of the jets
+			int nJetAConstituents = jetA->Constituents.GetEntriesFast();
+			histo.nJetConstituents->Fill( nJetAConstituents );
+
+		   // - Loop over all of the jet constituents
+		   for(int iJetConst = 0; iJetConst < nJetAConstituents; iJetConst++)
+		   {
+		
+				object       = NULL;
+		      object = jetA->Constituents.At(iJetConst);
+		
+				// Check if the constituent is accessible
+				if(object == 0) continue;
+				
+				if(object->IsA() == GenParticle::Class())
+				{
+				  particle = (GenParticle*) object;
+				  //	  std::cout << "    GenPart pt: " << particle->PT << ", eta: " << particle->Eta << ", phi: " << particle->Phi << std::endl;
+				  p_jetA_Const += particle->P4();
+				}
+				else if(object->IsA() == Track::Class())
+				{
+				  track = (Track*) object;
+				  //	  std::cout << "    Track pt: " << track->PT << ", eta: " << track->Eta << ", phi: " << track->Phi << std::endl;
+				  p_jetA_Const += track->P4();
+				
+				  //  std::cout << "track " << std::endl;
+				}
+				else if(object->IsA() == Tower::Class())
+				{
+				  tower = (Tower*) object;
+				  //	  std::cout << "    Tower pt: " << tower->ET << ", eta: " << tower->Eta << ", phi: " << tower->Phi << std::endl;
+				  p_jetA_Const += tower->P4();
+				}
+		   }
+
+
+			// Fill reco level jets
+			histo.PtDistr [jet][mono][reco]->Fill( jetA->PT );
+			histo.EtaDistr[jet][mono][reco]->Fill( jetA->Eta );
+
+
+			histo.PtDistr [jet][mono][gene]->Fill( p_jetA_Const.Pt()  );
+			histo.EtaDistr[jet][mono][gene]->Fill( p_jetA_Const.Eta() );
+
+
+			// Applyting cuts
+			if( CutJet(jetA) == true )
+			{
+				histo.PtDistr [jet][mono][recocut]->Fill( jetA->PT );
+				histo.EtaDistr[jet][mono][recocut]->Fill( jetA->Eta );
+
+				histo.PtDistr [jet][mono][genecut]->Fill( p_jetA_Const.Pt()  );
+				histo.EtaDistr[jet][mono][genecut]->Fill( p_jetA_Const.Eta() );
+			}
+
+			// Applying btag
+			if( jetA->BTag == true )
+			{
+				nBJets++;
+				histo.PtDistr [bjet][mono][reco]->Fill( jetA->PT );
+				histo.EtaDistr[bjet][mono][reco]->Fill( jetA->Eta );
+
+				histo.PtDistr [bjet][mono][gene]->Fill( p_jetA_Const.Pt()  );
+				histo.EtaDistr[bjet][mono][gene]->Fill( p_jetA_Const.Eta() );
+
+				// Applying btag & cuts
+				if( CutJet(jetA) == true )
+				{
+					histo.PtDistr [bjet][mono][recocut]->Fill( jetA->PT );
+					histo.EtaDistr[bjet][mono][recocut]->Fill( jetA->Eta );
+					histo.PtDistr [bjet][mono][genecut]->Fill( p_jetA_Const.Pt()  );
+					histo.EtaDistr[bjet][mono][genecut]->Fill( p_jetA_Const.Eta() );
+				}
+
+			}
+
+
+			// -- Second jet iterator -- //
+			for(int jJet = iJet+1; jJet < nJets; jJet++)
+			{
+
+
+				// Get Jet B
+	   		jetB = (Jet*) branchJet->At(jJet);
+				int nJetBConstituents = jetB->Constituents.GetEntriesFast();
+
+				p_jetB_Const = TLorentzVector(0.0,0.0,0.0,0.0);
+
+				// - Loop over all of the jet constituents
+		   	for(int jJetConst = 0; jJetConst < nJetBConstituents; jJetConst++)
+		   	{
+		
+					object = NULL;
+		   	   object = jetB->Constituents.At(jJetConst);
+		
+					// Check if the constituent is accessible
+					if(object == 0) continue;
+					
+					
+					if(object->IsA() == GenParticle::Class())
+					{
+					  particle = (GenParticle*) object;
+					  //	  std::cout << "    GenPart pt: " << particle->PT << ", eta: " << particle->Eta << ", phi: " << particle->Phi << std::endl;
+					  p_jetB_Const += particle->P4();
+					}
+					else if(object->IsA() == Track::Class())
+					{
+					  track = (Track*) object;
+					  //	  std::cout << "    Track pt: " << track->PT << ", eta: " << track->Eta << ", phi: " << track->Phi << std::endl;
+					  p_jetB_Const += track->P4();
+					
+				//	  std::cout << "track " << std::endl;
+					}
+					else if(object->IsA() == Tower::Class())
+					{
+					  tower = (Tower*) object;
+					  //	  std::cout << "    Tower pt: " << tower->ET << ", eta: " << tower->Eta << ", phi: " << tower->Phi << std::endl;
+					  p_jetB_Const += tower->P4();
+
+					}
+				}
+
+				// Sum of jetA and JetB
+				TLorentzVector p_jj      = jetA->P4()   + jetB->P4();
+				TLorentzVector p_jj_gene = p_jetA_Const + p_jetB_Const;
+
+				histo.MinvDistr[jet]    [reco]->Fill( p_jj.M()        );
+				histo.EtaDistr [jet][di][reco]->Fill( p_jj.Eta()      );
+				histo.PtDistr  [jet][di][reco]->Fill( p_jj.Pt()       );
+				histo.MinvDistr[jet]    [gene]->Fill( p_jj_gene.M()   );
+				histo.PtDistr  [jet][di][gene]->Fill( p_jj_gene.Pt()  );
+				histo.EtaDistr [jet][di][gene]->Fill( p_jj_gene.Eta() );
+
+				if( CutJet(jetB) == true )
+				{
+					histo.MinvDistr[jet]    [recocut]->Fill( p_jj.M()  );
+					histo.MinvDistr[jet]    [genecut]->Fill( p_jj_gene.M() );
+					histo.PtDistr  [jet][di][recocut]->Fill( p_jj.Pt() );
+					histo.EtaDistr [jet][di][recocut]->Fill( p_jj.Eta() );
+					histo.PtDistr  [jet][di][genecut]->Fill( p_jj_gene.Pt() );
+					histo.EtaDistr [jet][di][genecut]->Fill( p_jj_gene.Eta() );
+				}
+
+
+				if( (jetA->BTag == true) && (jetB->BTag == true) )
+				{
+					histo.MinvDistr[bjet]    [reco]->Fill( p_jj.M()        );
+					histo.MinvDistr[bjet]    [gene]->Fill( p_jj_gene.M()   );
+					histo.PtDistr  [bjet][di][reco]->Fill( p_jj.Pt()       );
+					histo.EtaDistr [bjet][di][reco]->Fill( p_jj.Eta()      );
+					histo.PtDistr  [bjet][di][gene]->Fill( p_jj_gene.Pt()  );
+					histo.EtaDistr [bjet][di][gene]->Fill( p_jj_gene.Eta() );
+
+					if( CutJet(jetB) == true )
+					{
+						histo.MinvDistr[bjet]    [recocut]->Fill( p_jj.M()        );
+						histo.MinvDistr[bjet]    [genecut]->Fill( p_jj_gene.M()   );
+						histo.PtDistr  [bjet][di][recocut]->Fill( p_jj.Pt()       );
+						histo.EtaDistr [bjet][di][recocut]->Fill( p_jj.Eta()      );
+						histo.PtDistr  [bjet][di][genecut]->Fill( p_jj_gene.Pt()  );
+						histo.EtaDistr [bjet][di][genecut]->Fill( p_jj_gene.Eta() );
+					}
+				}
+
+
+			}
+
+		}
+
+		histo.nObj[bjet]->Fill(nBJets);
+
+		
+		///////////////////////////
+		// -- Particle branch -- //
+		///////////////////////////
+
+
+//		std::cout << "PID Status MotherPID MotherStatus GrMotherPID GrMotherStatus" << std::endl;
+//		int nParticles =branchParticle->GetEntries();
+//		for (int iPart = 0; iPart < nParticles; iPart++)
+//		{
+//		  particle = (GenParticle *) branchParticle->At(iPart);
+//		  int g0 = particle->M1;
+//
+//		  std::cout << particle->PID << std::cout.width(5) << " " << particle->Status << std::cout.width(3);
+//		  if ( g0 == -1 )
+//		  { std::cout << std::endl; }
+//		  else
+//		  {
+//		  	g0mother = (GenParticle *) branchParticle->At(g0);
+//			std::cout << g0mother->PID << std::cout.width(5) << " " << g0mother->Status << std::cout.width(3);
+//		   int g1 = g0mother->M1;
+//		  	if ( g1 == -1 )
+//			{
+//				std::cout << std::endl;
+//			}
+//			else
+//			{
+//				g1mother = (GenParticle *) branchParticle->At(g1);
+//				std::cout << g1mother->PID << std::cout.width(5) << " " << g1mother->Status << std::cout.width(3) << std::endl;
+//			}
+//
+//		  }
+//
+//		}
+//
+
+		/////////////////
+		// -- Muons -- //
+		/////////////////
+
+		int nMuons = branchMuon->GetEntries();
+		histo.nObj[mu]->Fill(nMuons);
+
+		// - If event contains at least 2 electrons
+		
+		for(int iMuon = 0; iMuon < nMuons; iMuon++)
+		{
+
+	   	muA     = (Muon*) branchMuon->At(iMuon);
+			muA_gen = NULL;
+		   muA_gen = (GenParticle*) muA->Particle.GetObject();
+
+
+			histo.PtDistr [mu][mono][reco]->Fill( muA->PT );
+			histo.EtaDistr[mu][mono][reco]->Fill( muA->Eta );
+			histo.PtDistr [mu][mono][gene]->Fill( muA_gen->PT );
+			histo.EtaDistr[mu][mono][gene]->Fill( muA_gen->Eta );
+
+			// Applying cuts
+			if( CutMuon(muA) == true )
+			{
+				histo.PtDistr [mu][mono][recocut]->Fill( muA->PT );
+				histo.EtaDistr[mu][mono][recocut]->Fill( muA->Eta );
+				histo.PtDistr [mu][mono][genecut]->Fill( muA_gen->PT );
+				histo.EtaDistr[mu][mono][genecut]->Fill( muA_gen->Eta );
+			}
+
+			for(int jMuon = iMuon+1; jMuon < nMuons; jMuon++)
+			{
+				
+	   		muB     = (Muon*) branchMuon->At(jMuon);
+		   	muB_gen = (GenParticle*) muB->Particle.GetObject();
+
+				TLorentzVector p_mumu = muA->P4() + muB->P4();
+				TLorentzVector p_mumu_gen = muA_gen->P4() + muB_gen->P4();
+
+				histo.MinvDistr[mu]    [reco]->Fill( p_mumu.M()   );
+				histo.PtDistr  [mu][di][reco]->Fill( p_mumu.Pt()  );
+				histo.EtaDistr [mu][di][reco]->Fill( p_mumu.Eta() );
+
+				histo.MinvDistr[mu]    [gene]->Fill( p_mumu_gen.M()   );
+				histo.PtDistr  [mu][di][gene]->Fill( p_mumu_gen.Pt()  );
+				histo.EtaDistr [mu][di][gene]->Fill( p_mumu_gen.Eta() );
+
+				// Applying cuts
+				if( CutMuon(muB) == true )
+				{
+					histo.MinvDistr[mu]    [recocut]->Fill( p_mumu.M()   );
+					histo.PtDistr  [mu][di][recocut]->Fill( p_mumu.Pt()  );
+					histo.EtaDistr [mu][di][recocut]->Fill( p_mumu.Eta() );
+
+					histo.MinvDistr[mu]    [genecut]->Fill( p_mumu_gen.M()   );
+					histo.PtDistr  [mu][di][genecut]->Fill( p_mumu_gen.Pt()  );
+					histo.EtaDistr [mu][di][genecut]->Fill( p_mumu_gen.Eta() );
+				}
+
+
+
+			}
+
+		}
+
+
+		//////////////////
+		// -- jjmumu -- // 
+		//////////////////
+
+		for(int iJet = 0; iJet < nJets; iJet++)
+		for(int jJet = iJet+1; jJet < nJets; jJet++)
+		for(int iMuon = 0; iMuon < nMuons; iMuon++)
+		for(int jMuon = iMuon+1; jMuon < nMuons; jMuon++)
+		{
+					
+	   	jetA = (Jet*) branchJet->At(iJet);
+	   	jetB = (Jet*) branchJet->At(jJet);
+	   	muA = (Muon*) branchMuon->At(iMuon);
+	   	muB = (Muon*) branchMuon->At(jMuon);
+
+			int nJetAConstituents = jetA->Constituents.GetEntriesFast();
+			int nJetBConstituents = jetB->Constituents.GetEntriesFast();
+
+			p_jetB_Const = TLorentzVector(0.0,0.0,0.0,0.0);
+
+			// - Loop over all of the jet constituents
+		   for(int iJetConst = 0; iJetConst < nJetAConstituents; iJetConst++)
+		   {
+		
+				object = NULL;
+		      object = jetA->Constituents.At(iJetConst);
+		
+				// Check if the constituent is accessible
+				if(object == 0) continue;
+				
+				
+				if(object->IsA() == GenParticle::Class())
+				{
+				  particle = (GenParticle*) object;
+				  //	  std::cout << "    GenPart pt: " << particle->PT << ", eta: " << particle->Eta << ", phi: " << particle->Phi << std::endl;
+				  p_jetA_Const += particle->P4();
+				}
+				else if(object->IsA() == Track::Class())
+				{
+				  track = (Track*) object;
+				  //	  std::cout << "    Track pt: " << track->PT << ", eta: " << track->Eta << ", phi: " << track->Phi << std::endl;
+				  p_jetA_Const += track->P4();
+				
+				}
+				else if(object->IsA() == Tower::Class())
+				{
+				  tower = (Tower*) object;
+				  //	  std::cout << "    Tower pt: " << tower->ET << ", eta: " << tower->Eta << ", phi: " << tower->Phi << std::endl;
+				  p_jetA_Const += tower->P4();
+
+				}
+			}
+
+			// - Loop over all of the jet constituents
+		   for(int jJetConst = 0; jJetConst < nJetBConstituents; jJetConst++)
+		   {
+		
+				object = NULL;
+		      object = jetB->Constituents.At(jJetConst);
+		
+				// Check if the constituent is accessible
+				if(object == 0) continue;
+				
+				
+				if(object->IsA() == GenParticle::Class())
+				{
+				  particle = (GenParticle*) object;
+				  //	  std::cout << "    GenPart pt: " << particle->PT << ", eta: " << particle->Eta << ", phi: " << particle->Phi << std::endl;
+				  p_jetB_Const += particle->P4();
+				}
+				else if(object->IsA() == Track::Class())
+				{
+				  track = (Track*) object;
+				  //	  std::cout << "    Track pt: " << track->PT << ", eta: " << track->Eta << ", phi: " << track->Phi << std::endl;
+				  p_jetB_Const += track->P4();
+				
+				}
+				else if(object->IsA() == Tower::Class())
+				{
+				  tower = (Tower*) object;
+				  //	  std::cout << "    Tower pt: " << tower->ET << ", eta: " << tower->Eta << ", phi: " << tower->Phi << std::endl;
+				  p_jetB_Const += tower->P4();
+
+				}
+			}
+
+			TLorentzVector p_jjmumu     = jetA->P4() + jetB->P4() + muA->P4() + muB->P4();
+			TLorentzVector p_jjmumu_gen = p_jetA_Const + p_jetB_Const + muA_gen->P4() + muB_gen->P4();
+
+			histo.mZhDistr[jet][reco]->Fill( p_jjmumu.M()     );
+			histo.mZhDistr[jet][gene]->Fill( p_jjmumu_gen.M() );
+
+			if ( (jetA->BTag == true) && (jetB->BTag == true) ) 
+			{
+				histo.mZhDistr[bjet][reco]->Fill( p_jjmumu.M()     );
+				histo.mZhDistr[bjet][gene]->Fill( p_jjmumu_gen.M() );
+			}
+
+			if ( (CutJet(jetA) == true) && (CutJet(jetB) == true) && (CutMuon(muB) == true) && (CutMuon(muB)== true) )
+			{
+				histo.mZhDistr[jet][recocut]->Fill( p_jjmumu.M()     );
+				histo.mZhDistr[jet][genecut]->Fill( p_jjmumu_gen.M() );
+
+				if ( (jetA->BTag == true) && (jetB->BTag == true) ) 
+				{
+					histo.mZhDistr[bjet][recocut]->Fill( p_jjmumu.M()     );
+					histo.mZhDistr[bjet][genecut]->Fill( p_jjmumu_gen.M() );
+				}
+			}
+
+		}
+
+		
+		} // end-of-iEv-loop
+
+
+//	   p_mumujj = p_mumu + p_jj;
+	
+
+
+}
+
+
+
+//
+bool AnalysisFW::CutJet(Jet* jet)
+{
+	if ( jet->PT  < cuts.cutJetPtMin ) return false;
+	if ( abs(jet->Eta) > cuts.cutJetEtaMax     ) return false;
+
+	return true;
+}
+
+//
+bool AnalysisFW::CutMuon(Muon* mu)
+{
+	if ( mu->PT  < cuts.cutMuonPtMin ) return false;
+	if ( abs(mu->Eta) > cuts.cutMuonEtaMax     ) return false;
+
+	return true;
+}
+
+//
+bool AnalysisFW::CutElectron(Electron* el)
+{
+	if ( el->PT  < cuts.cutElectronPtMin ) return false;
+	if ( abs(el->Eta) > cuts.cutElectronEtaMax     ) return false;
+
+	return true;
+
+}
