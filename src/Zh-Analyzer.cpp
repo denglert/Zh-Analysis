@@ -3,31 +3,40 @@
 int main(int argc, const char *argv[] ) 
 {
 
-	if (argc != 4)
+	if (argc != 5)
 	{
-		std::cerr << "Usage: ./Zh-Analyzer <a_Delphes_sim_file.root> <config.conf> <nEvents>" << std::endl;
+		std::cerr << "Usage: ./Zh-Analyzer <tag> <comp.conf> <bin.conf> <nEvents>" << std::endl;
 		exit(1);
 	}
 
-	std::string inpFilename  = argv[1];
-	std::string confFilePath = argv[2];
-	int nEvents 				 = atoi(argv[3]);
+	std::string tag                = argv[1];
+	std::string compConfigFilePath = argv[2];
+	std::string  binConfigFilePath = argv[3];
+	int nEvents 				       = atoi(argv[4]);
 	
 	// - Plotting style
 	TStyle *myStyle = TStyle_Scheme();
 	gROOT->SetStyle("myStyle");
 
-	AnalysisFW AnaFW( confFilePath.c_str() );
-	AnaFW.nEvents = nEvents;
+	AnalysisFW AnaFW( );
+	AnaFW.nEvents            = nEvents;
+	AnaFW.tag                = tag;
+	AnaFW.compConfigFilePath = compConfigFilePath.c_str();
+	AnaFW.binConfigFilePath  =  binConfigFilePath.c_str();
 
-	// - Create chain of root trees
-	TChain chain("Delphes");
-	chain.Add(inpFilename.c_str());
+	AnaFW.Init();
 
-	// -  Create object of class ExRootTreeReader
-	ExRootTreeReader *treeReader = new ExRootTreeReader(&chain);
+//	// - Create chain of root trees
+//	TChain chain("Delphes");
+//	chain.Add(inpFilename.c_str());
+//
+//	// -  Create object of class ExRootTreeReader
+//	ExRootTreeReader *treeReader = new ExRootTreeReader(&chain);
 
-	AnaFW.Analyzer (treeReader);
+//	AnaFW.Analyzer ( );
+
+	AnaFW.CreateOutput();
+	AnaFW.WriteOutput();
 
 	std::cout << std::endl;
 	AnaFW.MakePlots();

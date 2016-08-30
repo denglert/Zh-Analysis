@@ -6,20 +6,30 @@
 
 void AnalysisFW::Init()
 {
+	chain = TChain("Delphes");
 
-	config conf;
-	conf.append(confFilePath.c_str());
+	conf.append(  binConfigFilePath.c_str() );
+	conf.append( compConfigFilePath.c_str() );
+
+	components.nComp = getconfig(conf, "nComp");
+
+	for( int i=0; i < components.nComp; i++ )
+	{
+		components.component_name = getconfig(conf, Form("compname%d",i) );
+		components.component_path = getconfig(conf, Form("comppath%d",i) );
+		components.component_xsec = getconfig(conf, Form("compxsec%d",i) );
+	}
 
 	// Bins
-	bins.nCat      = getconfig(conf, "nCat");
-	bins.nMult     = getconfig(conf, "nMult");
+	bins.nCat      = getconfig(conf, "nCat"  );
+	bins.nMult     = getconfig(conf, "nMult" );
 	bins.nLevel    = getconfig(conf, "nLevel");
 
 	bins.nCatmZh   = getconfig(conf, "nCatmZh");
 
 	bins.nPtBins   = getconfig(conf, "nPtBins");
-	bins.PtMin     = getconfig(conf, "PtMin");
-	bins.PtMax     = getconfig(conf, "PtMax");
+	bins.PtMin     = getconfig(conf, "PtMin"  );
+	bins.PtMax     = getconfig(conf, "PtMax"  );
 
 	bins.nEtaBins  = getconfig(conf, "nEtaBins");
 	bins.EtaMin    = getconfig(conf, "EtaMin");
@@ -56,6 +66,8 @@ void AnalysisFW::Init()
 	cuts.cuthMinvMin   = getconfig(conf, "cuthMinvMin");
 	cuts.cuthMinvMax   = getconfig(conf, "cuthMinvMax");
 
+	std::cout << "nComp: " << nComp << std::endl;
+
 	std::cout << "nCat: "    << bins.nCat << std::endl;
 	std::cout << "nLevel: "  << bins.nLevel << std::endl;
 	std::cout << "nMult: "   << bins.nMult << std::endl;
@@ -72,6 +84,7 @@ void AnalysisFW::Init()
 	AllocateArrayXY (histo.MinvDistr, bins.nCat,           bins.nLevel);
 	AllocateArrayXY (histo.mZhDistr,  bins.nCatmZh,        bins.nLevel);
 	AllocateArrayX  (histo.nObj,      bins.nCat                       );
+
 
 	// - Book histograms
 	loopxyz( iCat, iMult, iLvl, bins.nCat, bins.nMult, bins.nLevel)
@@ -120,6 +133,10 @@ void AnalysisFW::Init()
 
 		fHistos.insert(histo.nObj[iCat]);
 	}
+
+	histo.ZThetaDistr = new TH1D("ZThetaDistr", ";#Theta [rad];", 100, -0.1, 3.15);
+
+	fHistos.insert( histo.ZThetaDistr );
 //
 //	loopx( iLvl, bins.nLevel)
 //	{
@@ -137,6 +154,10 @@ void AnalysisFW::Init()
 
 
 
+AnalysisFW::AnalysisFW( )
+{
+}
+
 AnalysisFW::AnalysisFW( const char confFilePath_[] )
 {
 	confFilePath = confFilePath_;
@@ -149,12 +170,28 @@ AnalysisFW::AnalysisFW( const char confFilePath_[] )
 	Init();
 }
 
+void AnalysisFW::CreateOutput( )
+{
+	std::string prepath    = "./results/"+tag+"/";
+	std::string outputfile = prepath+"ana.root";
+	output = new TFile(outputfile.c_str(),"RECREATE");
+}
+
+void AnalysisFW::WriteOutput( )
+{
+  output->cd();
+  std::set<TObject*>::iterator itHisto;
+  for(itHisto = fHistos.begin(); itHisto != fHistos.end(); ++itHisto)
+  {
+	 (*itHisto)->Write();
+  }
+}
 
 void AnalysisFW::MakePlots( )
 {
 
 
-  std::string prepath = "./figures/";
+  std::string prepath = "./results/"+tag+"/";
 
   std::set<TObject*>::iterator itHisto;
   for(itHisto = fHistos.begin(); itHisto != fHistos.end(); ++itHisto)

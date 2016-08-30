@@ -26,6 +26,15 @@ struct Histograms
 	TH1D   **nObj;
 
 	TH1D *nJetConstituents;
+	TH1D *ZThetaDistr;
+};
+
+struct Components
+{
+	nComp;
+	double      component_xsec[10];
+	std::string component_name[10];
+	std::string component_path[10];
 };
 
 struct Cuts
@@ -92,9 +101,12 @@ class AnalysisFW
 	public:
 
 	AnalysisFW( const char confFilePath_[] );
+	AnalysisFW( );
 
 	void Analyzer( ExRootTreeReader* reader);
 	void MakePlots( );
+	void CreateOutput();
+	void WriteOutput();
 
 	void Init();
 
@@ -104,15 +116,25 @@ class AnalysisFW
 
 	int nEvents;
 
+	// - input/output handling
+	TFile *output;
+	TChain chain;
+	ExRootTreeReader *reader;
+
 	std::set<TObject*> fHistos;
 //	std::map<TObject*, PlotSettings> fPlotMap;
 
 	Binning bins;
 	Cuts cuts;
+	Components components;
+
+	std::string tag;
 
 	Histograms histo;
-	std::string confFilePath;
+	std::string  binConfFilePath;
+	std::string compConfFilePath;
 
+	config conf;
 };
 
 

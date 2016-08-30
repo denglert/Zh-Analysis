@@ -38,3 +38,6 @@ ROOTLFLAGS = -L/home/de3u14/lib/build/hep/root/lib -lCore -lCint -lRIO -lNet -lH
 	$(CC) $(CCFLAGS) -c $< -o $@
 
 include .depend_cpp
+
+clean : 
+	rm ../lib/*

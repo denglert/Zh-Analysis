@@ -6,8 +6,12 @@
 //                //
 ////////////////////
 
-void AnalysisFW::Analyzer( ExRootTreeReader* reader)
+// --- Prerequisites:
+//   - needs ExRootTreeReader reader set up already.
+
+void AnalysisFW::Analyzer( )
 {
+	std::cout << "AnalysisFW::Analyzer started." << std::endl;
 
 	// - Get pointers to branches used in this analysis
 	TClonesArray *branchParticle 				= reader->UseBranch("Particle");
@@ -263,35 +267,67 @@ void AnalysisFW::Analyzer( ExRootTreeReader* reader)
 		///////////////////////////
 
 
-//		std::cout << "PID Status MotherPID MotherStatus GrMotherPID GrMotherStatus" << std::endl;
-//		int nParticles =branchParticle->GetEntries();
-//		for (int iPart = 0; iPart < nParticles; iPart++)
-//		{
-//		  particle = (GenParticle *) branchParticle->At(iPart);
+		TLorentzVector p_Z;
+		TLorentzVector p_h;
+
+		//std::cout << "PID Status MotherPID MotherStatus GrMotherPID GrMotherStatus Pt" << std::endl;
+		int nParticles =branchParticle->GetEntries();
+		for (int iPart = 0; iPart < nParticles; iPart++)
+		{
+
+		  particle = (GenParticle *) branchParticle->At(iPart);
 //		  int g0 = particle->M1;
 //
-//		  std::cout << particle->PID << std::cout.width(5) << " " << particle->Status << std::cout.width(3);
+//		  printf("%5d %1d ", particle->PID, particle->Status);
 //		  if ( g0 == -1 )
-//		  { std::cout << std::endl; }
+//		  { 
+//		  printf("%5d %1d ", 0, 0);
+//		  }
 //		  else
 //		  {
 //		  	g0mother = (GenParticle *) branchParticle->At(g0);
-//			std::cout << g0mother->PID << std::cout.width(5) << " " << g0mother->Status << std::cout.width(3);
+//
+//		   printf("%5d %1d ", g0mother->PID, g0mother->Status);
 //		   int g1 = g0mother->M1;
 //		  	if ( g1 == -1 )
 //			{
-//				std::cout << std::endl;
+//		  		printf("%5d %1d ", 0, 0);
 //			}
 //			else
 //			{
 //				g1mother = (GenParticle *) branchParticle->At(g1);
-//				std::cout << g1mother->PID << std::cout.width(5) << " " << g1mother->Status << std::cout.width(3) << std::endl;
+//				printf("%5d %1d ", g1mother->PID, g1mother->Status);
 //			}
 //
 //		  }
 //
+//		  printf("%5.2f \n", particle->PT);
+			
+			if ( (particle->PID == 23) && (particle->Status == 3) )
+			{ p_Z = particle->P4(); }
+
+			if ( (particle->PID == 25) && (particle->Status == 3) )
+			{ p_h = particle->P4(); }
+
+		}
+
+		TLorentzVector p_Zh = p_Z + p_h;
+		TVector3 p_Zh_BoostVector = p_Zh.BoostVector();
+		p_Z.Boost( -p_Zh_BoostVector );
+		p_h.Boost( -p_Zh_BoostVector );
+		
+//		printf("%5.2f %5.2f %5.2f %5.2f\n", p_Zh.Px(), p_Zh.Py(), p_Zh.Pz(), p_Zh.E() );
+//		printf("%5.2f %5.2f %5.2f %5.2f\n", p_Z.Px(), p_Z.Py(), p_Z.Pz(), p_Z.E() );
+//		printf("%5.2f %5.2f %5.2f %5.2f\n", p_h.Px(), p_h.Py(), p_h.Pz(), p_h.E() );
+      
+//    Q: Why is theta Theta_{Z} = 0 ???
+//		if(  p_Z.Theta() == 0.0 )
+//		{
+//			// Debuggg 
+//			std::cerr << "cica " << std::endl;
 //		}
-//
+		histo.ZThetaDistr->Fill( p_Z.Theta() );
+
 
 		/////////////////
 		// -- Muons -- //

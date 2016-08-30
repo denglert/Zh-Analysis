@@ -1,15 +1,37 @@
-SIM_FILE_PATH = ~/lib/projects/2HDM/MadGraph/gg_z_mumuh_LoopInd/Events/run_10kEv_decayed_1/tag_1_delphes_events.root
-CONFIG        = ./config/default.conf
-nEvents       = -1
-#nEvents       = 3
+## qq_Zh tree level
+RUN_ZH_ANA_TAG       = qq_Zh_tree_level
+RUN_ZH_ANA_FILE_PATH = /home/de3u14/lib/projects/2HDM/MadGraph/qq_zh_tree/Events/run_01_decayed_1/tag_1_delphes_events.root 
+RUN_ZH_ANA_CONFIG    = ./config/default.conf
+RUN_ZH_ANA_nEvents   = -1
+
+# gg_Zh LoopInd
+#RUN_ZH_ANA_TAG       = gg_Zh_LoopInd
+#RUN_ZH_ANA_FILE_PATH = ~/lib/projects/2HDM/MadGraph/gg_z_mumuh_LoopInd/Events/run_10kEv_decayed_1/tag_1_delphes_events.root
+#RUN_ZH_ANA_CONFIG    = ./config/default.conf
+#RUN_ZH_ANA_nEvents   = -1
+
+# gg_Zh LoopInd
+RUN_ZH_ANA_TAG        = gg_qq_zh
+RUN_ZH_ANA_BINCONFIG  = ./config/bin.conf
+RUN_ZH_ANA_COMPCONFIG = ./config/comp.conf
+RUN_ZH_ANA_nEvents    = -1
+
+VAR_RUN_ZH_ANA    = $(shell echo '$(.VARIABLES)' |  awk -v RS=' ' '/RUN_ZH_ANA_/' | sed 's/RUN_ZH_ANA_//g' )
+EXPORT_RUN_ZH_ANA = $(foreach v,$(VAR_RUN_ZH_ANA),$(v)="$(RUN_ZH_ANA_$(v))")
 
 run : build
-	@./bin/Zh-Analyzer $(SIM_FILE_PATH) $(CONFIG) $(nEvents)
+	@$(EXPORT_RUN_ZH_ANA) ./scripts/createWD.sh
+	@./bin/Zh-Analyzer $(RUN_ZH_ANA_FILE_PATH) $(RUN_ZH_ANA_TAG) $(RUN_ZH_ANA_CONFIG) $(RUN_ZH_ANA_nEvents)
 
 test :
 	@ echo "Test."
+	@ echo $(VAR_RUN_ZH_ANA)
+	@ echo $(EXPORT_RUN_ZH_ANA)
 
 ###############################
 
 build : 
 	@ cd src; make all 
+
+clean :
+	rm ./lib/*

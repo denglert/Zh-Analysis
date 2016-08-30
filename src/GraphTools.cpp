@@ -21,7 +21,7 @@ void CreatePlot (TH1D *histo, const char basename[])
 	TCanvas canvas("canvas", "canvas", 600, 600);
 	gPad->SetLeftMargin(0.14);
 	gPad->SetBottomMargin(0.15);
-	histo->Draw();
+	histo->Draw("E");
 	std::string outfig = basename;
 	outfig = outfig+".pdf";
 	canvas.SaveAs(outfig.c_str());
