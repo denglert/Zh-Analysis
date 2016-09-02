@@ -29,6 +29,8 @@ void AnalysisFW::Init()
 		SetupHistos( &histos[i], &bins, components.component_name[i], &fHistos );
 	}
 
+	SetupHistos( &histos[i], &bins, components.component_name[i], &fHistos );
+
 // void SetupHistos( Histograms *histo, std::string tag, std::set<TObject*> *fHistos);
 
 	std::cout << "nComp: " << components.nComp << std::endl;

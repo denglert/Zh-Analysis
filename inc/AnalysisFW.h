@@ -53,6 +53,8 @@ class AnalysisFW
 	std::string tag;
 
 	Histograms *histos;
+//	Histograms *histos;
+
 	std::string  binConfigFilePath;
 	std::string compConfigFilePath;
 
