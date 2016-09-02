@@ -9,9 +9,12 @@
 // --- Prerequisites:
 //   - needs ExRootTreeReader reader set up already.
 
-void AnalysisFW::Analyzer( )
+void AnalysisFW::Analyzer( TChain *chain, Histograms *histo)
 {
 	std::cout << "AnalysisFW::Analyzer started." << std::endl;
+
+	// -  Create object of class ExRootTreeReader
+	reader = new ExRootTreeReader(chain);
 
 	// - Get pointers to branches used in this analysis
 	TClonesArray *branchParticle 				= reader->UseBranch("Particle");
@@ -78,7 +81,7 @@ void AnalysisFW::Analyzer( )
 
 		int nJets = branchJet->GetEntries();
 		int nBJets = 0;
-		histo.nObj[jet]->Fill(nJets);
+		histo->nObj[jet]->Fill(nJets);
 
 		// -- First jet iterator -- //
 		for(int iJet = 0; iJet < nJets; iJet++)
@@ -91,7 +94,7 @@ void AnalysisFW::Analyzer( )
 
 			// Get number of constituents of the jets
 			int nJetAConstituents = jetA->Constituents.GetEntriesFast();
-			histo.nJetConstituents->Fill( nJetAConstituents );
+			histo->nJetConstituents->Fill( nJetAConstituents );
 
 		   // - Loop over all of the jet constituents
 		   for(int iJetConst = 0; iJetConst < nJetAConstituents; iJetConst++)
@@ -127,41 +130,41 @@ void AnalysisFW::Analyzer( )
 
 
 			// Fill reco level jets
-			histo.PtDistr [jet][mono][reco]->Fill( jetA->PT );
-			histo.EtaDistr[jet][mono][reco]->Fill( jetA->Eta );
+			histo->PtDistr [jet][mono][reco]->Fill( jetA->PT );
+			histo->EtaDistr[jet][mono][reco]->Fill( jetA->Eta );
 
 
-			histo.PtDistr [jet][mono][gene]->Fill( p_jetA_Const.Pt()  );
-			histo.EtaDistr[jet][mono][gene]->Fill( p_jetA_Const.Eta() );
+			histo->PtDistr [jet][mono][gene]->Fill( p_jetA_Const.Pt()  );
+			histo->EtaDistr[jet][mono][gene]->Fill( p_jetA_Const.Eta() );
 
 
 			// Applyting cuts
 			if( CutJet(jetA) == true )
 			{
-				histo.PtDistr [jet][mono][recocut]->Fill( jetA->PT );
-				histo.EtaDistr[jet][mono][recocut]->Fill( jetA->Eta );
+				histo->PtDistr [jet][mono][recocut]->Fill( jetA->PT );
+				histo->EtaDistr[jet][mono][recocut]->Fill( jetA->Eta );
 
-				histo.PtDistr [jet][mono][genecut]->Fill( p_jetA_Const.Pt()  );
-				histo.EtaDistr[jet][mono][genecut]->Fill( p_jetA_Const.Eta() );
+				histo->PtDistr [jet][mono][genecut]->Fill( p_jetA_Const.Pt()  );
+				histo->EtaDistr[jet][mono][genecut]->Fill( p_jetA_Const.Eta() );
 			}
 
 			// Applying btag
 			if( jetA->BTag == true )
 			{
 				nBJets++;
-				histo.PtDistr [bjet][mono][reco]->Fill( jetA->PT );
-				histo.EtaDistr[bjet][mono][reco]->Fill( jetA->Eta );
+				histo->PtDistr [bjet][mono][reco]->Fill( jetA->PT );
+				histo->EtaDistr[bjet][mono][reco]->Fill( jetA->Eta );
 
-				histo.PtDistr [bjet][mono][gene]->Fill( p_jetA_Const.Pt()  );
-				histo.EtaDistr[bjet][mono][gene]->Fill( p_jetA_Const.Eta() );
+				histo->PtDistr [bjet][mono][gene]->Fill( p_jetA_Const.Pt()  );
+				histo->EtaDistr[bjet][mono][gene]->Fill( p_jetA_Const.Eta() );
 
 				// Applying btag & cuts
 				if( CutJet(jetA) == true )
 				{
-					histo.PtDistr [bjet][mono][recocut]->Fill( jetA->PT );
-					histo.EtaDistr[bjet][mono][recocut]->Fill( jetA->Eta );
-					histo.PtDistr [bjet][mono][genecut]->Fill( p_jetA_Const.Pt()  );
-					histo.EtaDistr[bjet][mono][genecut]->Fill( p_jetA_Const.Eta() );
+					histo->PtDistr [bjet][mono][recocut]->Fill( jetA->PT );
+					histo->EtaDistr[bjet][mono][recocut]->Fill( jetA->Eta );
+					histo->PtDistr [bjet][mono][genecut]->Fill( p_jetA_Const.Pt()  );
+					histo->EtaDistr[bjet][mono][genecut]->Fill( p_jetA_Const.Eta() );
 				}
 
 			}
@@ -216,41 +219,41 @@ void AnalysisFW::Analyzer( )
 				TLorentzVector p_jj      = jetA->P4()   + jetB->P4();
 				TLorentzVector p_jj_gene = p_jetA_Const + p_jetB_Const;
 
-				histo.MinvDistr[jet]    [reco]->Fill( p_jj.M()        );
-				histo.EtaDistr [jet][di][reco]->Fill( p_jj.Eta()      );
-				histo.PtDistr  [jet][di][reco]->Fill( p_jj.Pt()       );
-				histo.MinvDistr[jet]    [gene]->Fill( p_jj_gene.M()   );
-				histo.PtDistr  [jet][di][gene]->Fill( p_jj_gene.Pt()  );
-				histo.EtaDistr [jet][di][gene]->Fill( p_jj_gene.Eta() );
+				histo->MinvDistr[jet]    [reco]->Fill( p_jj.M()        );
+				histo->EtaDistr [jet][di][reco]->Fill( p_jj.Eta()      );
+				histo->PtDistr  [jet][di][reco]->Fill( p_jj.Pt()       );
+				histo->MinvDistr[jet]    [gene]->Fill( p_jj_gene.M()   );
+				histo->PtDistr  [jet][di][gene]->Fill( p_jj_gene.Pt()  );
+				histo->EtaDistr [jet][di][gene]->Fill( p_jj_gene.Eta() );
 
 				if( CutJet(jetB) == true )
 				{
-					histo.MinvDistr[jet]    [recocut]->Fill( p_jj.M()  );
-					histo.MinvDistr[jet]    [genecut]->Fill( p_jj_gene.M() );
-					histo.PtDistr  [jet][di][recocut]->Fill( p_jj.Pt() );
-					histo.EtaDistr [jet][di][recocut]->Fill( p_jj.Eta() );
-					histo.PtDistr  [jet][di][genecut]->Fill( p_jj_gene.Pt() );
-					histo.EtaDistr [jet][di][genecut]->Fill( p_jj_gene.Eta() );
+					histo->MinvDistr[jet]    [recocut]->Fill( p_jj.M()  );
+					histo->MinvDistr[jet]    [genecut]->Fill( p_jj_gene.M() );
+					histo->PtDistr  [jet][di][recocut]->Fill( p_jj.Pt() );
+					histo->EtaDistr [jet][di][recocut]->Fill( p_jj.Eta() );
+					histo->PtDistr  [jet][di][genecut]->Fill( p_jj_gene.Pt() );
+					histo->EtaDistr [jet][di][genecut]->Fill( p_jj_gene.Eta() );
 				}
 
 
 				if( (jetA->BTag == true) && (jetB->BTag == true) )
 				{
-					histo.MinvDistr[bjet]    [reco]->Fill( p_jj.M()        );
-					histo.MinvDistr[bjet]    [gene]->Fill( p_jj_gene.M()   );
-					histo.PtDistr  [bjet][di][reco]->Fill( p_jj.Pt()       );
-					histo.EtaDistr [bjet][di][reco]->Fill( p_jj.Eta()      );
-					histo.PtDistr  [bjet][di][gene]->Fill( p_jj_gene.Pt()  );
-					histo.EtaDistr [bjet][di][gene]->Fill( p_jj_gene.Eta() );
+					histo->MinvDistr[bjet]    [reco]->Fill( p_jj.M()        );
+					histo->MinvDistr[bjet]    [gene]->Fill( p_jj_gene.M()   );
+					histo->PtDistr  [bjet][di][reco]->Fill( p_jj.Pt()       );
+					histo->EtaDistr [bjet][di][reco]->Fill( p_jj.Eta()      );
+					histo->PtDistr  [bjet][di][gene]->Fill( p_jj_gene.Pt()  );
+					histo->EtaDistr [bjet][di][gene]->Fill( p_jj_gene.Eta() );
 
 					if( CutJet(jetB) == true )
 					{
-						histo.MinvDistr[bjet]    [recocut]->Fill( p_jj.M()        );
-						histo.MinvDistr[bjet]    [genecut]->Fill( p_jj_gene.M()   );
-						histo.PtDistr  [bjet][di][recocut]->Fill( p_jj.Pt()       );
-						histo.EtaDistr [bjet][di][recocut]->Fill( p_jj.Eta()      );
-						histo.PtDistr  [bjet][di][genecut]->Fill( p_jj_gene.Pt()  );
-						histo.EtaDistr [bjet][di][genecut]->Fill( p_jj_gene.Eta() );
+						histo->MinvDistr[bjet]    [recocut]->Fill( p_jj.M()        );
+						histo->MinvDistr[bjet]    [genecut]->Fill( p_jj_gene.M()   );
+						histo->PtDistr  [bjet][di][recocut]->Fill( p_jj.Pt()       );
+						histo->EtaDistr [bjet][di][recocut]->Fill( p_jj.Eta()      );
+						histo->PtDistr  [bjet][di][genecut]->Fill( p_jj_gene.Pt()  );
+						histo->EtaDistr [bjet][di][genecut]->Fill( p_jj_gene.Eta() );
 					}
 				}
 
@@ -259,7 +262,7 @@ void AnalysisFW::Analyzer( )
 
 		}
 
-		histo.nObj[bjet]->Fill(nBJets);
+		histo->nObj[bjet]->Fill(nBJets);
 
 		
 		///////////////////////////
@@ -326,7 +329,7 @@ void AnalysisFW::Analyzer( )
 //			// Debuggg 
 //			std::cerr << "cica " << std::endl;
 //		}
-		histo.ZThetaDistr->Fill( p_Z.Theta() );
+		histo->ZThetaDistr->Fill( p_Z.Theta() );
 
 
 		/////////////////
@@ -334,7 +337,7 @@ void AnalysisFW::Analyzer( )
 		/////////////////
 
 		int nMuons = branchMuon->GetEntries();
-		histo.nObj[mu]->Fill(nMuons);
+		histo->nObj[mu]->Fill(nMuons);
 
 		// - If event contains at least 2 electrons
 		
@@ -346,18 +349,18 @@ void AnalysisFW::Analyzer( )
 		   muA_gen = (GenParticle*) muA->Particle.GetObject();
 
 
-			histo.PtDistr [mu][mono][reco]->Fill( muA->PT );
-			histo.EtaDistr[mu][mono][reco]->Fill( muA->Eta );
-			histo.PtDistr [mu][mono][gene]->Fill( muA_gen->PT );
-			histo.EtaDistr[mu][mono][gene]->Fill( muA_gen->Eta );
+			histo->PtDistr [mu][mono][reco]->Fill( muA->PT );
+			histo->EtaDistr[mu][mono][reco]->Fill( muA->Eta );
+			histo->PtDistr [mu][mono][gene]->Fill( muA_gen->PT );
+			histo->EtaDistr[mu][mono][gene]->Fill( muA_gen->Eta );
 
 			// Applying cuts
 			if( CutMuon(muA) == true )
 			{
-				histo.PtDistr [mu][mono][recocut]->Fill( muA->PT );
-				histo.EtaDistr[mu][mono][recocut]->Fill( muA->Eta );
-				histo.PtDistr [mu][mono][genecut]->Fill( muA_gen->PT );
-				histo.EtaDistr[mu][mono][genecut]->Fill( muA_gen->Eta );
+				histo->PtDistr [mu][mono][recocut]->Fill( muA->PT );
+				histo->EtaDistr[mu][mono][recocut]->Fill( muA->Eta );
+				histo->PtDistr [mu][mono][genecut]->Fill( muA_gen->PT );
+				histo->EtaDistr[mu][mono][genecut]->Fill( muA_gen->Eta );
 			}
 
 			for(int jMuon = iMuon+1; jMuon < nMuons; jMuon++)
@@ -369,24 +372,24 @@ void AnalysisFW::Analyzer( )
 				TLorentzVector p_mumu = muA->P4() + muB->P4();
 				TLorentzVector p_mumu_gen = muA_gen->P4() + muB_gen->P4();
 
-				histo.MinvDistr[mu]    [reco]->Fill( p_mumu.M()   );
-				histo.PtDistr  [mu][di][reco]->Fill( p_mumu.Pt()  );
-				histo.EtaDistr [mu][di][reco]->Fill( p_mumu.Eta() );
+				histo->MinvDistr[mu]    [reco]->Fill( p_mumu.M()   );
+				histo->PtDistr  [mu][di][reco]->Fill( p_mumu.Pt()  );
+				histo->EtaDistr [mu][di][reco]->Fill( p_mumu.Eta() );
 
-				histo.MinvDistr[mu]    [gene]->Fill( p_mumu_gen.M()   );
-				histo.PtDistr  [mu][di][gene]->Fill( p_mumu_gen.Pt()  );
-				histo.EtaDistr [mu][di][gene]->Fill( p_mumu_gen.Eta() );
+				histo->MinvDistr[mu]    [gene]->Fill( p_mumu_gen.M()   );
+				histo->PtDistr  [mu][di][gene]->Fill( p_mumu_gen.Pt()  );
+				histo->EtaDistr [mu][di][gene]->Fill( p_mumu_gen.Eta() );
 
 				// Applying cuts
 				if( CutMuon(muB) == true )
 				{
-					histo.MinvDistr[mu]    [recocut]->Fill( p_mumu.M()   );
-					histo.PtDistr  [mu][di][recocut]->Fill( p_mumu.Pt()  );
-					histo.EtaDistr [mu][di][recocut]->Fill( p_mumu.Eta() );
+					histo->MinvDistr[mu]    [recocut]->Fill( p_mumu.M()   );
+					histo->PtDistr  [mu][di][recocut]->Fill( p_mumu.Pt()  );
+					histo->EtaDistr [mu][di][recocut]->Fill( p_mumu.Eta() );
 
-					histo.MinvDistr[mu]    [genecut]->Fill( p_mumu_gen.M()   );
-					histo.PtDistr  [mu][di][genecut]->Fill( p_mumu_gen.Pt()  );
-					histo.EtaDistr [mu][di][genecut]->Fill( p_mumu_gen.Eta() );
+					histo->MinvDistr[mu]    [genecut]->Fill( p_mumu_gen.M()   );
+					histo->PtDistr  [mu][di][genecut]->Fill( p_mumu_gen.Pt()  );
+					histo->EtaDistr [mu][di][genecut]->Fill( p_mumu_gen.Eta() );
 				}
 
 
@@ -485,24 +488,24 @@ void AnalysisFW::Analyzer( )
 			TLorentzVector p_jjmumu     = jetA->P4() + jetB->P4() + muA->P4() + muB->P4();
 			TLorentzVector p_jjmumu_gen = p_jetA_Const + p_jetB_Const + muA_gen->P4() + muB_gen->P4();
 
-			histo.mZhDistr[jet][reco]->Fill( p_jjmumu.M()     );
-			histo.mZhDistr[jet][gene]->Fill( p_jjmumu_gen.M() );
+			histo->mZhDistr[jet][reco]->Fill( p_jjmumu.M()     );
+			histo->mZhDistr[jet][gene]->Fill( p_jjmumu_gen.M() );
 
 			if ( (jetA->BTag == true) && (jetB->BTag == true) ) 
 			{
-				histo.mZhDistr[bjet][reco]->Fill( p_jjmumu.M()     );
-				histo.mZhDistr[bjet][gene]->Fill( p_jjmumu_gen.M() );
+				histo->mZhDistr[bjet][reco]->Fill( p_jjmumu.M()     );
+				histo->mZhDistr[bjet][gene]->Fill( p_jjmumu_gen.M() );
 			}
 
 			if ( (CutJet(jetA) == true) && (CutJet(jetB) == true) && (CutMuon(muB) == true) && (CutMuon(muB)== true) )
 			{
-				histo.mZhDistr[jet][recocut]->Fill( p_jjmumu.M()     );
-				histo.mZhDistr[jet][genecut]->Fill( p_jjmumu_gen.M() );
+				histo->mZhDistr[jet][recocut]->Fill( p_jjmumu.M()     );
+				histo->mZhDistr[jet][genecut]->Fill( p_jjmumu_gen.M() );
 
 				if ( (jetA->BTag == true) && (jetB->BTag == true) ) 
 				{
-					histo.mZhDistr[bjet][recocut]->Fill( p_jjmumu.M()     );
-					histo.mZhDistr[bjet][genecut]->Fill( p_jjmumu_gen.M() );
+					histo->mZhDistr[bjet][recocut]->Fill( p_jjmumu.M()     );
+					histo->mZhDistr[bjet][genecut]->Fill( p_jjmumu_gen.M() );
 				}
 			}
 
@@ -514,7 +517,6 @@ void AnalysisFW::Analyzer( )
 
 //	   p_mumujj = p_mumu + p_jj;
 	
-
 
 }
 

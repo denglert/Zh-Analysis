@@ -1,8 +1,8 @@
 ## qq_Zh tree level
-RUN_ZH_ANA_TAG       = qq_Zh_tree_level
-RUN_ZH_ANA_FILE_PATH = /home/de3u14/lib/projects/2HDM/MadGraph/qq_zh_tree/Events/run_01_decayed_1/tag_1_delphes_events.root 
-RUN_ZH_ANA_CONFIG    = ./config/default.conf
-RUN_ZH_ANA_nEvents   = -1
+RUN_ZH_ANA_TAG        = test
+RUN_ZH_ANA_BINCONFIG  = ./config/bin.conf
+RUN_ZH_ANA_COMPCONFIG = ./config/comp.conf
+RUN_ZH_ANA_nEvents    = -1
 
 # gg_Zh LoopInd
 #RUN_ZH_ANA_TAG       = gg_Zh_LoopInd
@@ -11,17 +11,17 @@ RUN_ZH_ANA_nEvents   = -1
 #RUN_ZH_ANA_nEvents   = -1
 
 # gg_Zh LoopInd
-RUN_ZH_ANA_TAG        = gg_qq_zh
-RUN_ZH_ANA_BINCONFIG  = ./config/bin.conf
-RUN_ZH_ANA_COMPCONFIG = ./config/comp.conf
-RUN_ZH_ANA_nEvents    = -1
+#RUN_ZH_ANA_TAG        = gg_qq_zh
+#RUN_ZH_ANA_BINCONFIG  = ./config/bin.conf
+#RUN_ZH_ANA_COMPCONFIG = ./config/comp.conf
+#RUN_ZH_ANA_nEvents    = -1
 
 VAR_RUN_ZH_ANA    = $(shell echo '$(.VARIABLES)' |  awk -v RS=' ' '/RUN_ZH_ANA_/' | sed 's/RUN_ZH_ANA_//g' )
 EXPORT_RUN_ZH_ANA = $(foreach v,$(VAR_RUN_ZH_ANA),$(v)="$(RUN_ZH_ANA_$(v))")
 
 run : build
 	@$(EXPORT_RUN_ZH_ANA) ./scripts/createWD.sh
-	@./bin/Zh-Analyzer $(RUN_ZH_ANA_FILE_PATH) $(RUN_ZH_ANA_TAG) $(RUN_ZH_ANA_CONFIG) $(RUN_ZH_ANA_nEvents)
+	@./bin/Zh-Analyzer $(RUN_ZH_ANA_TAG) $(RUN_ZH_ANA_COMPCONFIG) $(RUN_ZH_ANA_BINCONFIG) $(RUN_ZH_ANA_nEvents)
 
 test :
 	@ echo "Test."

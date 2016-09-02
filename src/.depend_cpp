@@ -76,7 +76,7 @@
  /home/de3u14/lib/build/hep/root/include/THashTable.h \
  /home/de3u14/lib/build/hep/root/include/TUrl.h \
  /home/de3u14/lib/build/hep/root/include/TClonesArray.h \
- /home/de3u14/lib/build/hep/root/include/TH1D.h \
+ ../inc/UtilFunctions.h /home/de3u14/lib/build/hep/root/include/TH1D.h \
  /home/de3u14/lib/build/hep/root/include/TH1.h \
  /home/de3u14/lib/build/hep/root/include/TAxis.h \
  /home/de3u14/lib/build/hep/root/include/TAttAxis.h \
@@ -85,7 +85,7 @@
  /home/de3u14/lib/build/hep/root/include/TArrayF.h \
  /home/de3u14/lib/build/hep/root/include/Foption.h \
  /home/de3u14/lib/build/hep/root/include/TFitResultPtr.h ../inc/config.h \
- ../inc/pstream.h ../inc/UtilFunctions.h ../inc/GraphTools.h \
+ ../inc/pstream.h ../inc/GraphTools.h \
  /home/de3u14/lib/build/hep/root/include/TStyle.h \
  /home/de3u14/lib/build/hep/root/include/TAttText.h \
  /home/de3u14/lib/build/hep/root/include/TCanvas.h \

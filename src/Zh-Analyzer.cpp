@@ -18,7 +18,7 @@ int main(int argc, const char *argv[] )
 	TStyle *myStyle = TStyle_Scheme();
 	gROOT->SetStyle("myStyle");
 
-	AnalysisFW AnaFW( );
+	AnalysisFW AnaFW;
 	AnaFW.nEvents            = nEvents;
 	AnaFW.tag                = tag;
 	AnaFW.compConfigFilePath = compConfigFilePath.c_str();
@@ -28,7 +28,12 @@ int main(int argc, const char *argv[] )
 
 //	// - Create chain of root trees
 //	TChain chain("Delphes");
-//	chain.Add(inpFilename.c_str());
+   for(int i=0; i < AnaFW.components.nComp; i++)
+	{
+		AnaFW.chain->Add( AnaFW.components.component_path[i].c_str() );
+		AnaFW.Analyzer( AnaFW.chain, &AnaFW.histos[i] );
+		AnaFW.chain->Reset();
+	}
 //
 //	// -  Create object of class ExRootTreeReader
 //	ExRootTreeReader *treeReader = new ExRootTreeReader(&chain);
