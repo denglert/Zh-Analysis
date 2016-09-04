@@ -42,17 +42,19 @@ struct Binning
 	  	
 };
 
+template <typename T>
 struct Histograms
 {
 
-	TH1D ****PtDistr;
-	TH1D ****EtaDistr;
-	TH1D  ***MinvDistr;
-	TH1D  ***mZhDistr;
-	TH1D   **nObj;
+	T ****PtDistr;
+	T ****EtaDistr;
+	T  ***MinvDistr;
+	T  ***mZhDistr;
+	T   **nObj;
 
-	TH1D *nJetConstituents;
-	TH1D *ZThetaDistr;
+	T *nJetConstituents;
+	T *ZThetaDistr;
+	void Setup( Histograms *histo, Binning *bins, std::string tag, std::set<TObject*> *fHistos);
 };
 
 struct Cuts
@@ -98,7 +100,6 @@ std::string tag_Level          ( const int id );
 
 void progress_bar( double percent );
 
-void SetupHistos( Histograms *histo, Binning *bins, std::string tag, std::set<TObject*> *fHistos);
 
 
 void LoadBinningConfig( config *conf, Binning *bins);

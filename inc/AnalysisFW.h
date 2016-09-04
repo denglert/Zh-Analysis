@@ -52,7 +52,7 @@ class AnalysisFW
 
 	std::string tag;
 
-	Histograms *histos;
+	Histograms<TH1D> *histos;
 //	Histograms *histos;
 
 	std::string  binConfigFilePath;
