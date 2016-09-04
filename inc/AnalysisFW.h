@@ -25,7 +25,7 @@ class AnalysisFW
 	AnalysisFW( const char confFilePath_[] );
 	AnalysisFW( );
 
-	void Analyzer( TChain *chain, Histograms *histo);
+	void Analyzer( TChain *chain, Histograms<TH1D> *histo);
 	void MakePlots( );
 	void CreateOutput();
 	void WriteOutput();

@@ -54,7 +54,7 @@ struct Histograms
 
 	T *nJetConstituents;
 	T *ZThetaDistr;
-	void Setup( Histograms *histo, Binning *bins, std::string tag, std::set<TObject*> *fHistos);
+//	void Setup( Histograms *histo, Binning *bins, std::string tag, std::set<TObject*> *fHistos);
 };
 
 struct Cuts

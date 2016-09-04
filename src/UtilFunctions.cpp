@@ -144,7 +144,7 @@ void AllocateArrayXYZ(TYPE ****&a, int n1, int n2, int n3)
 }
 
 
-void SetupHistos( Histograms *histo, Binning *bins, std::string tag, std::set<TObject*> *fHistos)
+void SetupHistos( Histograms<TH1D> *histo, Binning *bins, std::string tag, std::set<TObject*> *fHistos)
 {
 	// - Allocate multi-dim arrays for the histo->rams
 	AllocateArrayXYZ(histo->PtDistr,   bins->nCat,bins->nMult,bins->nLevel);
