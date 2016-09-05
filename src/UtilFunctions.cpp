@@ -143,19 +143,27 @@ void AllocateArrayXYZ(TYPE ****&a, int n1, int n2, int n3)
 	}
 }
 
+//#include "../src/UtilFunctions.tpp"
 
-void SetupHistos( Histograms<TH1D> *histo, Binning *bins, std::string tag, std::set<TObject*> *fHistos)
+template <typename T>
+ResultContainer<T>::ResultContainer ( struct Binning *bins, std::string tag, std::set<TObject*> *fHistos )
+{
+	ResultContainer<T>::Setup( bins, tag, fHistos );
+};
+
+template <typename T>
+void ResultContainer<T>::Setup ( struct Binning *bins, std::string tag, std::set<TObject*> *fHistos)
 {
 	// - Allocate multi-dim arrays for the histo->rams
-	AllocateArrayXYZ(histo->PtDistr,   bins->nCat,bins->nMult,bins->nLevel);
-	AllocateArrayXYZ(histo->EtaDistr,  bins->nCat,bins->nMult,bins->nLevel);
-	AllocateArrayXY (histo->MinvDistr, bins->nCat,           bins->nLevel);
-	AllocateArrayXY (histo->mZhDistr,  bins->nCatmZh,        bins->nLevel);
-	AllocateArrayX  (histo->nObj,      bins->nCat                       );
+	AllocateArrayXYZ( PtDistr,   bins->nCat,    bins->nMult, bins->nLevel);
+	AllocateArrayXYZ( EtaDistr,  bins->nCat,    bins->nMult, bins->nLevel);
+	AllocateArrayXY ( MinvDistr, bins->nCat,                 bins->nLevel);
+	AllocateArrayXY ( mZhDistr,  bins->nCatmZh,              bins->nLevel);
+	AllocateArrayX  ( nObj,      bins->nCat                              );
 
 
 	// - Book histo->rams
-	loopxyz( iCat, iMult, iLvl, bins->nCat, bins->nMult, bins->nLevel)
+	loopxyz( iCat, iMult, iLvl, bins->nCat, bins->nMult, bins->nLevel )
 	{
 		std::string histoname_pt  = tag+"_"+tag_Multiplicity(iMult)+tag_Cat(iCat)+"_pt_" +tag_Level(iLvl)+"-level";
 		std::string histoname_eta = tag+"_"+tag_Multiplicity(iMult)+tag_Cat(iCat)+"_eta_"+tag_Level(iLvl)+"-level";
@@ -163,11 +171,11 @@ void SetupHistos( Histograms<TH1D> *histo, Binning *bins, std::string tag, std::
 		std::string label_pt   = ";p_{T}("+label_Multiplicity(iMult)+label_Cat(iCat)+") [GeV/c] "+label_Level(iLvl)+"-level";
 		std::string label_eta  = ";#eta("+label_Multiplicity(iMult)+label_Cat(iCat)+") "+label_Level(iLvl)+"-level";
 
-		histo->PtDistr [iCat][iMult][iLvl] = new TH1D(histoname_pt.c_str(),  label_pt.c_str(),  bins->nPtBins,  bins->PtMin,  bins->PtMax);
-		histo->EtaDistr[iCat][iMult][iLvl] = new TH1D(histoname_eta.c_str(), label_eta.c_str(), bins->nEtaBins, bins->EtaMin, bins->EtaMax);
+		PtDistr [iCat][iMult][iLvl] = new TH1D(histoname_pt.c_str(),  label_pt.c_str(),  bins->nPtBins,  bins->PtMin,  bins->PtMax);
+		EtaDistr[iCat][iMult][iLvl] = new TH1D(histoname_eta.c_str(), label_eta.c_str(), bins->nEtaBins, bins->EtaMin, bins->EtaMax);
 
-		fHistos->insert(histo->PtDistr   [iCat][iMult][iLvl]);
-		fHistos->insert(histo->EtaDistr  [iCat][iMult][iLvl]);
+		fHistos->insert(PtDistr   [iCat][iMult][iLvl]);
+		fHistos->insert(EtaDistr  [iCat][iMult][iLvl]);
 	}
 
 	loopxy( iCat, iLvl, bins->nCat, bins->nLevel )
@@ -175,9 +183,9 @@ void SetupHistos( Histograms<TH1D> *histo, Binning *bins, std::string tag, std::
 		std::string histoname_minv = tag+"_"+"Minv_di-"+tag_Cat(iCat)+"_"+tag_Level(iLvl)+"-level";
 		std::string label_minv 		= ";m_{inv}(di-"+label_Cat(iCat)+") [GeV/c^{2}] "+label_Level(iLvl)+"-level";
 
-		histo->MinvDistr[iCat][iLvl] = new TH1D(histoname_minv.c_str(),label_minv.c_str(), bins->nMinvBins, bins->MinvMin, bins->MinvMax);
+		MinvDistr[iCat][iLvl] = new TH1D(histoname_minv.c_str(),label_minv.c_str(), bins->nMinvBins, bins->MinvMin, bins->MinvMax);
 
-		fHistos->insert(histo->MinvDistr[iCat][iLvl]);
+		fHistos->insert(MinvDistr[iCat][iLvl]);
 
 
 	}
@@ -186,9 +194,9 @@ void SetupHistos( Histograms<TH1D> *histo, Binning *bins, std::string tag, std::
 	{
 		std::string histoname_jjmumu = tag+"_"+"mZh_jjmumu_"+tag_Cat(iCat)+"_"+tag_Level(iLvl)+"-level";
 		std::string label_jjmumu 	  = ";m_{inv}(#mu#mujj) [GeV/c^{2}] "+tag_Cat(iCat)+"_"+label_Level(iLvl)+"-level";
-		histo->mZhDistr[iCat][iLvl] = new TH1D(histoname_jjmumu.c_str(), label_jjmumu.c_str(), bins->nmZhBins, bins->mZhMin, bins->mZhMax);
+		mZhDistr[iCat][iLvl] = new TH1D(histoname_jjmumu.c_str(), label_jjmumu.c_str(), bins->nmZhBins, bins->mZhMin, bins->mZhMax);
 
-		fHistos->insert(histo->mZhDistr[iCat][iLvl]);
+		fHistos->insert(mZhDistr[iCat][iLvl]);
 	}
 
 
@@ -197,15 +205,15 @@ void SetupHistos( Histograms<TH1D> *histo, Binning *bins, std::string tag, std::
 	{
 		std::string histoname_nobj = tag+"_"+"n"+tag_Cat(iCat);
 		std::string label_nobj 		= ";N_{"+label_Cat(iCat)+"}";
-		histo->nObj[iCat] = new TH1D(histoname_nobj.c_str(), label_nobj.c_str(), bins->nObjBins, bins->ObjMin, bins->ObjMax);
+		nObj[iCat] = new TH1D(histoname_nobj.c_str(), label_nobj.c_str(), bins->nObjBins, bins->ObjMin, bins->ObjMax);
 
-		fHistos->insert(histo->nObj[iCat]);
+		fHistos->insert( nObj[iCat]);
 	}
 
 	std::string ZThetaDistr_name = tag+"_"+"ZThetaDistr";
-	histo->ZThetaDistr = new TH1D( ZThetaDistr_name.c_str(), ";#Theta [rad];", 100, -0.1, 3.15);
+	ZThetaDistr = new TH1D( ZThetaDistr_name.c_str(), ";#Theta [rad];", 100, -0.1, 3.15);
 
-	fHistos->insert( histo->ZThetaDistr );
+	fHistos->insert( ZThetaDistr );
 //
 //	loopx( iLvl, bins->nLevel)
 //	{
@@ -217,12 +225,13 @@ void SetupHistos( Histograms<TH1D> *histo, Binning *bins, std::string tag, std::
 //	}
 
 	std::string nJetConstituents_name = tag+"_"+"nJetConstituents";
-	histo->nJetConstituents = new TH1D(nJetConstituents_name.c_str(), ";# of jet constitutents;", 20, 0.0, 20.0);
-	fHistos->insert(histo->nJetConstituents);
+	nJetConstituents = new TH1D(nJetConstituents_name.c_str(), ";# of jet constitutents;", 20, 0.0, 20.0);
+	fHistos->insert( nJetConstituents);
 
 }
 
-
+template class ResultContainer<TH1D>;
+template class ResultContainer<THStack>;
 
 
 void LoadBinningConfig( config *conf, Binning *bins)

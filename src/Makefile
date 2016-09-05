@@ -6,8 +6,6 @@ OBJ_core = ../lib/GraphTools.cpp.o ../lib/UtilFunctions.cpp.o ../lib/config.cpp.
 
 all : ../bin/Zh-Analyzer
 
-
-
 ####################
 ## -- Linking -- ###
 ####################
@@ -37,14 +35,7 @@ ROOTCFLAGS = `root-config --cflags`
 #WS_FLAG = MAC
 WS_FLAG = IRIDIS
 
-ifeq ($(WS_FLAG),IRIDIS)
-	ROOTLFLAGS = -L/home/de3u14/lib/build/hep/root/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lm -ldl
-else ifeq ($(WS_FLAG),MAC)
-	ROOTLFLAGS = -LApplications/build/hep/root/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lm -ldl
-else
-	echo "No WS_FLAG set."
-endif
-
+ROOTLFLAGS = -L/home/de3u14/lib/build/hep/root/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lm -ldl
 
 ### General compilation rule for .cpp sources
 ../lib/%.cpp.o : %.cpp

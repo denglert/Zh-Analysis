@@ -15,7 +15,7 @@ void AnalysisFW::Init()
 
 	components.nComp = (int)getconfig(conf, "nComp"); // - number of components
 
-	histos = new Histograms<TH1D>[components.nComp];
+	histos = new ResultContainer<TH1D>[components.nComp];
 
 	// - Extracting component config
 	for( int i=0; i < components.nComp; i++ )
@@ -27,10 +27,12 @@ void AnalysisFW::Init()
 		components.component_path[i] = (std::string)getconfig(conf, comppath.c_str() );
 		components.component_xsec[i] = (double)getconfig(conf, compxsec.c_str() );
 //		SetupHistos( &histos[i], &bins, components.component_name[i], &fHistos );
+		histos[i].Setup(&bins, components.component_name[i], &fHistos);
 	}
 
+
 //	SetupHistos( &histos[i], &bins, components.component_name[i], &fHistos );
-// void SetupHistos( Histograms *histo, std::string tag, std::set<TObject*> *fHistos);
+// void SetupHistos( ResultContainer *histo, std::string tag, std::set<TObject*> *fHistos);
 
 	std::cout << "nComp: " << components.nComp << std::endl;
 

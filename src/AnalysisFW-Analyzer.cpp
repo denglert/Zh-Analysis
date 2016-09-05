@@ -9,7 +9,7 @@
 // --- Prerequisites:
 //   - needs ExRootTreeReader reader set up already.
 
-void AnalysisFW::Analyzer( TChain *chain, Histograms<TH1D> *histo)
+void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 {
 	std::cout << "AnalysisFW::Analyzer started." << std::endl;
 

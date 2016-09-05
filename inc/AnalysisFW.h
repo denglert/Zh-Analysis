@@ -25,7 +25,7 @@ class AnalysisFW
 	AnalysisFW( const char confFilePath_[] );
 	AnalysisFW( );
 
-	void Analyzer( TChain *chain, Histograms<TH1D> *histo);
+	void Analyzer( TChain *chain, ResultContainer<TH1D> *histo);
 	void MakePlots( );
 	void CreateOutput();
 	void WriteOutput();
@@ -52,7 +52,7 @@ class AnalysisFW
 
 	std::string tag;
 
-	Histograms<TH1D> *histos;
+	ResultContainer<TH1D> *histos;
 //	Histograms *histos;
 
 	std::string  binConfigFilePath;

@@ -43,7 +43,7 @@ struct Binning
 };
 
 template <typename T>
-struct Histograms
+struct ResultContainer
 {
 
 	T ****PtDistr;
@@ -54,8 +54,12 @@ struct Histograms
 
 	T *nJetConstituents;
 	T *ZThetaDistr;
-//	void Setup( Histograms *histo, Binning *bins, std::string tag, std::set<TObject*> *fHistos);
+
+	ResultContainer ( ){};
+	ResultContainer ( struct Binning *bins, std::string tag, std::set<TObject*> *fHistos );
+	void Setup      ( struct Binning *bins, std::string tag, std::set<TObject*> *fHistos );
 };
+
 
 struct Cuts
 {
@@ -99,8 +103,6 @@ std::string tag_Multiplicity   ( const int id );
 std::string tag_Level          ( const int id );
 
 void progress_bar( double percent );
-
-
 
 void LoadBinningConfig( config *conf, Binning *bins);
 void LoadCutsConfig(    config *conf, Cuts *cuts);
