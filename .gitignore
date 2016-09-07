@@ -3,3 +3,4 @@ lib/
 *.depend_cpp
 backup/
 results/test
+tmp/

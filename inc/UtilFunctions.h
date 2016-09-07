@@ -5,6 +5,7 @@
 #include <iostream>
 #include <set>
 #include <TH1D.h>
+#include <THStack.h>
 #include "config.h"
 
 #define loopx(x, nx)               for( int x = 0; x < nx; x++)
@@ -43,9 +44,9 @@ struct Binning
 };
 
 template <typename T>
-struct ResultContainer
+class ResultContainer
 {
-
+	public:
 	T ****PtDistr;
 	T ****EtaDistr;
 	T  ***MinvDistr;
@@ -56,9 +57,21 @@ struct ResultContainer
 	T *ZThetaDistr;
 
 	ResultContainer ( ){};
-	ResultContainer ( struct Binning *bins, std::string tag, std::set<TObject*> *fHistos );
-	void Setup      ( struct Binning *bins, std::string tag, std::set<TObject*> *fHistos );
+	ResultContainer ( struct Binning *bins, std::string tag, std::set<TObject*> *fCollection );
+	void Allocate   ( struct Binning *bins, std::string tag, std::set<TObject*> *fCollection );
 };
+
+class THStackContainer: public ResultContainer<THStack>
+{
+	public:
+};
+
+class TH1DContainer: public ResultContainer<TH1D>
+{
+	public:
+	void SetupBins  ( struct Binning *bins  );
+};
+
 
 
 struct Cuts

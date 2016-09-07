@@ -146,13 +146,13 @@ void AllocateArrayXYZ(TYPE ****&a, int n1, int n2, int n3)
 //#include "../src/UtilFunctions.tpp"
 
 template <typename T>
-ResultContainer<T>::ResultContainer ( struct Binning *bins, std::string tag, std::set<TObject*> *fHistos )
+ResultContainer<T>::ResultContainer ( Binning *bins, std::string tag, std::set<TObject*> *fCollection )
 {
-	ResultContainer<T>::Setup( bins, tag, fHistos );
+	ResultContainer<T>::Allocate( bins, tag, fCollection );
 };
 
 template <typename T>
-void ResultContainer<T>::Setup ( struct Binning *bins, std::string tag, std::set<TObject*> *fHistos)
+void ResultContainer<T>::Allocate ( Binning *bins, std::string tag, std::set<TObject*> *fCollection)
 {
 	// - Allocate multi-dim arrays for the histo->rams
 	AllocateArrayXYZ( PtDistr,   bins->nCat,    bins->nMult, bins->nLevel);
@@ -160,7 +160,6 @@ void ResultContainer<T>::Setup ( struct Binning *bins, std::string tag, std::set
 	AllocateArrayXY ( MinvDistr, bins->nCat,                 bins->nLevel);
 	AllocateArrayXY ( mZhDistr,  bins->nCatmZh,              bins->nLevel);
 	AllocateArrayX  ( nObj,      bins->nCat                              );
-
 
 	// - Book histo->rams
 	loopxyz( iCat, iMult, iLvl, bins->nCat, bins->nMult, bins->nLevel )
@@ -171,11 +170,14 @@ void ResultContainer<T>::Setup ( struct Binning *bins, std::string tag, std::set
 		std::string label_pt   = ";p_{T}("+label_Multiplicity(iMult)+label_Cat(iCat)+") [GeV/c] "+label_Level(iLvl)+"-level";
 		std::string label_eta  = ";#eta("+label_Multiplicity(iMult)+label_Cat(iCat)+") "+label_Level(iLvl)+"-level";
 
-		PtDistr [iCat][iMult][iLvl] = new TH1D(histoname_pt.c_str(),  label_pt.c_str(),  bins->nPtBins,  bins->PtMin,  bins->PtMax);
-		EtaDistr[iCat][iMult][iLvl] = new TH1D(histoname_eta.c_str(), label_eta.c_str(), bins->nEtaBins, bins->EtaMin, bins->EtaMax);
+		PtDistr [iCat][iMult][iLvl] = new T();
+		EtaDistr[iCat][iMult][iLvl] = new T();
 
-		fHistos->insert(PtDistr   [iCat][iMult][iLvl]);
-		fHistos->insert(EtaDistr  [iCat][iMult][iLvl]);
+		PtDistr [iCat][iMult][iLvl]->SetNameTitle( histoname_pt.c_str() , label_pt.c_str()  );
+		EtaDistr[iCat][iMult][iLvl]->SetNameTitle( histoname_eta.c_str(), label_eta.c_str() );
+
+		fCollection->insert(PtDistr   [iCat][iMult][iLvl]);
+		fCollection->insert(EtaDistr  [iCat][iMult][iLvl]);
 	}
 
 	loopxy( iCat, iLvl, bins->nCat, bins->nLevel )
@@ -183,56 +185,84 @@ void ResultContainer<T>::Setup ( struct Binning *bins, std::string tag, std::set
 		std::string histoname_minv = tag+"_"+"Minv_di-"+tag_Cat(iCat)+"_"+tag_Level(iLvl)+"-level";
 		std::string label_minv 		= ";m_{inv}(di-"+label_Cat(iCat)+") [GeV/c^{2}] "+label_Level(iLvl)+"-level";
 
-		MinvDistr[iCat][iLvl] = new TH1D(histoname_minv.c_str(),label_minv.c_str(), bins->nMinvBins, bins->MinvMin, bins->MinvMax);
+		MinvDistr[iCat][iLvl] = new T();
+		MinvDistr[iCat][iLvl]->SetNameTitle( histoname_minv.c_str(), label_minv.c_str() ) ;
 
-		fHistos->insert(MinvDistr[iCat][iLvl]);
-
-
+		fCollection->insert(MinvDistr[iCat][iLvl]);
 	}
 
 	loopxy( iCat, iLvl, bins->nCatmZh, bins->nLevel )
 	{
 		std::string histoname_jjmumu = tag+"_"+"mZh_jjmumu_"+tag_Cat(iCat)+"_"+tag_Level(iLvl)+"-level";
 		std::string label_jjmumu 	  = ";m_{inv}(#mu#mujj) [GeV/c^{2}] "+tag_Cat(iCat)+"_"+label_Level(iLvl)+"-level";
-		mZhDistr[iCat][iLvl] = new TH1D(histoname_jjmumu.c_str(), label_jjmumu.c_str(), bins->nmZhBins, bins->mZhMin, bins->mZhMax);
 
-		fHistos->insert(mZhDistr[iCat][iLvl]);
+		mZhDistr[iCat][iLvl] = new T();
+		mZhDistr[iCat][iLvl]->SetNameTitle( histoname_jjmumu.c_str(), label_jjmumu.c_str() );
+
+		fCollection->insert(mZhDistr[iCat][iLvl]);
 	}
-
 
 
 	loopx( iCat, bins->nCat)
 	{
 		std::string histoname_nobj = tag+"_"+"n"+tag_Cat(iCat);
 		std::string label_nobj 		= ";N_{"+label_Cat(iCat)+"}";
-		nObj[iCat] = new TH1D(histoname_nobj.c_str(), label_nobj.c_str(), bins->nObjBins, bins->ObjMin, bins->ObjMax);
 
-		fHistos->insert( nObj[iCat]);
+		nObj[iCat] = new T();
+		nObj[iCat]->SetNameTitle( histoname_nobj.c_str(), label_nobj.c_str() );
+
+		fCollection->insert( nObj[iCat]);
 	}
 
 	std::string ZThetaDistr_name = tag+"_"+"ZThetaDistr";
-	ZThetaDistr = new TH1D( ZThetaDistr_name.c_str(), ";#Theta [rad];", 100, -0.1, 3.15);
 
-	fHistos->insert( ZThetaDistr );
-//
-//	loopx( iLvl, bins->nLevel)
-//	{
-//		std::string histoname_jjmumu = "mZh_jjmumu"+tag_Level(iLvl);
-//		std::string label_jjmumu 	  = ";m_{inv}(#mu#mujj) "+label_Level(iLvl)+"-level";
-//		histo->mZhDistr[iLvl] = new TH1D(histoname_jjmumu.c_str(), label_jjmumu.c_str(), bins->nmZhBins, bins->mZhMin, bins->mZhMax);
-//
-//		fHistos->insert(histo->mZhDistr[iLvl]);
-//	}
+	ZThetaDistr = new T();
+	ZThetaDistr->SetNameTitle( ZThetaDistr_name.c_str(), ";#Theta [rad];");
+
+	fCollection->insert( ZThetaDistr );
 
 	std::string nJetConstituents_name = tag+"_"+"nJetConstituents";
-	nJetConstituents = new TH1D(nJetConstituents_name.c_str(), ";# of jet constitutents;", 20, 0.0, 20.0);
-	fHistos->insert( nJetConstituents);
 
+	nJetConstituents = new T();
+	nJetConstituents->SetNameTitle( nJetConstituents_name.c_str(), ";# of jet constitutents;" );
+
+	fCollection->insert( nJetConstituents );
+
+}
+
+////////////////////
+void TH1DContainer::SetupBins ( Binning *bins )
+{
+
+	loopxyz( iCat, iMult, iLvl, bins->nCat, bins->nMult, bins->nLevel )
+	{
+		PtDistr [iCat][iMult][iLvl]->SetBins( bins->nPtBins,  bins->PtMin,  bins->PtMax  );
+		EtaDistr[iCat][iMult][iLvl]->SetBins( bins->nEtaBins, bins->EtaMin, bins->EtaMax );
+	}
+
+	loopxy( iCat, iLvl, bins->nCat, bins->nLevel )
+	{
+		MinvDistr[iCat][iLvl]->SetBins( bins->nMinvBins, bins->MinvMin, bins->MinvMax ) ;
+	}
+
+
+	loopxy( iCat, iLvl, bins->nCatmZh, bins->nLevel )
+	{
+		mZhDistr[iCat][iLvl]->SetBins( bins->nmZhBins, bins->mZhMin, bins->mZhMax);
+	}
+
+
+	loopx( iCat, bins->nCat)
+	{
+		nObj[iCat]->SetBins( bins->nObjBins, bins->ObjMin, bins->ObjMax );
+	}
+
+	ZThetaDistr     ->SetBins( 100, -0.1, 3.15 );
+	nJetConstituents->SetBins(  20,  0.0, 20.0 );
 }
 
 template class ResultContainer<TH1D>;
 template class ResultContainer<THStack>;
-
 
 void LoadBinningConfig( config *conf, Binning *bins)
 {

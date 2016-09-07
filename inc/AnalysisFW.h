@@ -43,7 +43,7 @@ class AnalysisFW
 	TChain *chain;
 	ExRootTreeReader *reader;
 
-	std::set<TObject*> fHistos;
+	std::set<TObject*> fCollection;
 //	std::map<TObject*, PlotSettings> fPlotMap;
 
 	Binning bins;
@@ -52,7 +52,8 @@ class AnalysisFW
 
 	std::string tag;
 
-	ResultContainer<TH1D> *histos;
+	TH1DContainer *histos;
+	THStackContainer hstacks;
 //	Histograms *histos;
 
 	std::string  binConfigFilePath;
