@@ -53,6 +53,7 @@ class AnalysisFW
 	std::string tag;
 
 	TH1DContainer *histos;
+
 	THStackContainer hstacks;
 //	Histograms *histos;
 

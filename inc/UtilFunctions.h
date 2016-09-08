@@ -98,8 +98,12 @@ struct Cuts
 
 struct Components
 {
-	int nComp;
+	double lumi;
+	int   nComp;
+
 	double      component_xsec[10];
+	double      component_scale[10];
+	double      component_nEvents[10];
 	std::string component_name[10];
 	std::string component_path[10];
 };

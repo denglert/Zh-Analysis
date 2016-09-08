@@ -13,7 +13,9 @@ void AnalysisFW::Init()
 	LoadBinningConfig( &conf, &bins);
   	   LoadCutsConfig( &conf, &cuts);
 
-	components.nComp = (int)getconfig(conf, "nComp"); // - number of components
+	components.nComp = (int)    getconfig(conf, "nComp"); // - number of components
+	components.lumi  = (double) getconfig(conf,  "lumi"); // - integrated luminosity
+
 
 	histos = new TH1DContainer[components.nComp];
 	hstacks = THStackContainer();
@@ -21,18 +23,24 @@ void AnalysisFW::Init()
 	std::string stacktag = "stacks";
 	hstacks.Allocate( &bins, stacktag, &fCollection );
 
+	printf("Total integrated luminosity:  %12.6f (fb)\n", components.lumi);
+	printf("Component name | cross section (fb) | nPhysEvents | nGenEvents | scale\n");
 	// - Extracting component config
 	for( int i=0; i < components.nComp; i++ )
 	{
 		std::string compname = Form("compname%d",i);
 		std::string comppath = Form("comppath%d",i);
 		std::string compxsec = Form("compxsec%d",i);
-		components.component_name[i] = (std::string)getconfig(conf, compname.c_str() );
-		components.component_path[i] = (std::string)getconfig(conf, comppath.c_str() );
-		components.component_xsec[i] = (double)getconfig(conf, compxsec.c_str() );
+		std::string compnev  = Form("compnev%d",i);
+		components.component_name[i]    = (std::string)getconfig(conf, compname.c_str() );
+		components.component_path[i]    = (std::string)getconfig(conf, comppath.c_str() );
+		components.component_xsec[i]    = (double)getconfig(conf, compxsec.c_str() );
+		components.component_nEvents[i] = (double)getconfig(conf, compnev.c_str()  );
 //		SetupHistos( &histos[i], &bins, components.component_name[i], &fCollection );
 		histos[i].Allocate(  &bins, components.component_name[i], &fCollection );
 		histos[i].SetupBins( &bins ); 
+		components.component_scale[i] = components.lumi * components.component_xsec[i] / components.component_nEvents[i];
+		printf("%14s %20.6f %12.2f %12.2f %12.8f\n", components.component_name[i].c_str(), components.component_xsec[i], components.lumi*components.component_xsec[i], components.component_nEvents[i], components.component_scale[i]);
 	}
 
 
@@ -79,7 +87,6 @@ void AnalysisFW::WriteOutput( )
 
 void AnalysisFW::MakePlots( )
 {
-
 
   std::string prepath = "./results/"+tag+"/";
 
