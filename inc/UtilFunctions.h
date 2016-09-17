@@ -5,6 +5,7 @@
 #include <iostream>
 #include <set>
 #include <TH1D.h>
+#include <TFile.h>
 #include <THStack.h>
 #include "config.h"
 
@@ -12,6 +13,7 @@
 #define loopxy(x, y, nx, ny)        for( int x = 0; x < nx; x++)for( int y = 0; y < ny; y++)
 #define loopxyz(x, y, z, nx, ny, nz) for( int x = 0; x < nx; x++)for( int y = 0; y < ny; y++)for( int z = 0; z < nz; z++)
 
+#define MAXNCOMPONENT 10
 
 struct Binning
 {
@@ -56,9 +58,14 @@ class ResultContainer
 	T *nJetConstituents;
 	T *ZThetaDistr;
 
+	std::set<TObject*> fCollection;
+
+	std::string tag;
+
 	ResultContainer ( ){};
-	ResultContainer ( struct Binning *bins, std::string tag, std::set<TObject*> *fCollection );
-	void Allocate   ( struct Binning *bins, std::string tag, std::set<TObject*> *fCollection );
+	ResultContainer ( struct Binning *bins, std::string tag_ );
+	void Allocate   ( struct Binning *bins, std::string tag_ );
+	void WriteToROOTFile ( TFile *f );
 };
 
 class THStackContainer: public ResultContainer<THStack>
@@ -101,11 +108,12 @@ struct Components
 	double lumi;
 	int   nComp;
 
-	double      component_xsec[10];
-	double      component_scale[10];
-	double      component_nEvents[10];
-	std::string component_name[10];
-	std::string component_path[10];
+	double      component_xsec    [MAXNCOMPONENT];
+	double      component_scale   [MAXNCOMPONENT];
+	double      component_nEvents [MAXNCOMPONENT];
+	std::string component_name    [MAXNCOMPONENT];
+	std::string component_path    [MAXNCOMPONENT];
+	int         component_color   [MAXNCOMPONENT];
 };
 
 enum Category { jet,     bjet,   mu          };

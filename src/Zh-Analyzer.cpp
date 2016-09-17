@@ -3,16 +3,15 @@
 int main(int argc, const char *argv[] ) 
 {
 
-	if (argc != 5)
+	if (argc != 4)
 	{
-		std::cerr << "Usage: ./Zh-Analyzer <tag> <comp.conf> <bin.conf> <nEvents>" << std::endl;
+		std::cerr << "Usage: ./Zh-Analyzer <comp.conf> <bin.conf> <nEvents>" << std::endl;
 		exit(1);
 	}
 
-	std::string tag                = argv[1];
-	std::string compConfigFilePath = argv[2];
-	std::string  binConfigFilePath = argv[3];
-	int nEvents 				       = atoi(argv[4]);
+	std::string compConfigFilePath = argv[1];
+	std::string  binConfigFilePath = argv[2];
+	int nEvents 				       = atoi(argv[3]);
 	
 	// - Plotting style
 	TStyle *myStyle = TStyle_Scheme();
@@ -20,7 +19,6 @@ int main(int argc, const char *argv[] )
 
 	AnalysisFW AnaFW;
 	AnaFW.nEvents            = nEvents;
-	AnaFW.tag                = tag;
 	AnaFW.compConfigFilePath = compConfigFilePath.c_str();
 	AnaFW.binConfigFilePath  =  binConfigFilePath.c_str();
 
@@ -40,7 +38,7 @@ int main(int argc, const char *argv[] )
 
 //	AnaFW.Analyzer ( );
 
-	AnaFW.CreateOutput();
+	AnaFW.CreateOutputFile();
 	AnaFW.WriteOutput();
 
 	std::cout << std::endl;

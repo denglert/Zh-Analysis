@@ -518,6 +518,8 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 //	   p_mumujj = p_mumu + p_jj;
 	
 
+	std::cout << std::endl;
+	std::cout << "AnalysisFW::Analyzer finished." << std::endl;
 }
 
 

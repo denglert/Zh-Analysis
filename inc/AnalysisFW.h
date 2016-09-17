@@ -27,7 +27,7 @@ class AnalysisFW
 
 	void Analyzer( TChain *chain, ResultContainer<TH1D> *histo);
 	void MakePlots( );
-	void CreateOutput();
+	void CreateOutputFile();
 	void WriteOutput();
 
 	void Init();
@@ -43,7 +43,6 @@ class AnalysisFW
 	TChain *chain;
 	ExRootTreeReader *reader;
 
-	std::set<TObject*> fCollection;
 //	std::map<TObject*, PlotSettings> fPlotMap;
 
 	Binning bins;

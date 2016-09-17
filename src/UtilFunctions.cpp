@@ -146,14 +146,31 @@ void AllocateArrayXYZ(TYPE ****&a, int n1, int n2, int n3)
 //#include "../src/UtilFunctions.tpp"
 
 template <typename T>
-ResultContainer<T>::ResultContainer ( Binning *bins, std::string tag, std::set<TObject*> *fCollection )
+ResultContainer<T>::ResultContainer ( Binning *bins, std::string tag_ )
 {
-	ResultContainer<T>::Allocate( bins, tag, fCollection );
+	tag = tag_;
+	ResultContainer<T>::Allocate( bins, tag );
+};
+
+
+template <typename T>
+void ResultContainer<T>::WriteToROOTFile ( TFile *f )
+{
+	f->cd();
+
+   std::set<TObject*>::iterator it;
+ 	for(it = fCollection.begin(); it != fCollection.end(); ++it)
+	{
+		(*it)->Write();
+	}
+
 };
 
 template <typename T>
-void ResultContainer<T>::Allocate ( Binning *bins, std::string tag, std::set<TObject*> *fCollection)
+void ResultContainer<T>::Allocate ( Binning *bins, std::string tag_ )
 {
+	tag = tag_;
+
 	// - Allocate multi-dim arrays for the histo->rams
 	AllocateArrayXYZ( PtDistr,   bins->nCat,    bins->nMult, bins->nLevel);
 	AllocateArrayXYZ( EtaDistr,  bins->nCat,    bins->nMult, bins->nLevel);
@@ -176,8 +193,8 @@ void ResultContainer<T>::Allocate ( Binning *bins, std::string tag, std::set<TOb
 		PtDistr [iCat][iMult][iLvl]->SetNameTitle( histoname_pt.c_str() , label_pt.c_str()  );
 		EtaDistr[iCat][iMult][iLvl]->SetNameTitle( histoname_eta.c_str(), label_eta.c_str() );
 
-		fCollection->insert(PtDistr   [iCat][iMult][iLvl]);
-		fCollection->insert(EtaDistr  [iCat][iMult][iLvl]);
+		fCollection.insert(PtDistr   [iCat][iMult][iLvl]);
+		fCollection.insert(EtaDistr  [iCat][iMult][iLvl]);
 	}
 
 	loopxy( iCat, iLvl, bins->nCat, bins->nLevel )
@@ -188,7 +205,7 @@ void ResultContainer<T>::Allocate ( Binning *bins, std::string tag, std::set<TOb
 		MinvDistr[iCat][iLvl] = new T();
 		MinvDistr[iCat][iLvl]->SetNameTitle( histoname_minv.c_str(), label_minv.c_str() ) ;
 
-		fCollection->insert(MinvDistr[iCat][iLvl]);
+		fCollection.insert(MinvDistr[iCat][iLvl]);
 	}
 
 	loopxy( iCat, iLvl, bins->nCatmZh, bins->nLevel )
@@ -199,7 +216,7 @@ void ResultContainer<T>::Allocate ( Binning *bins, std::string tag, std::set<TOb
 		mZhDistr[iCat][iLvl] = new T();
 		mZhDistr[iCat][iLvl]->SetNameTitle( histoname_jjmumu.c_str(), label_jjmumu.c_str() );
 
-		fCollection->insert(mZhDistr[iCat][iLvl]);
+		fCollection.insert(mZhDistr[iCat][iLvl]);
 	}
 
 
@@ -211,7 +228,7 @@ void ResultContainer<T>::Allocate ( Binning *bins, std::string tag, std::set<TOb
 		nObj[iCat] = new T();
 		nObj[iCat]->SetNameTitle( histoname_nobj.c_str(), label_nobj.c_str() );
 
-		fCollection->insert( nObj[iCat]);
+		fCollection.insert( nObj[iCat]);
 	}
 
 	std::string ZThetaDistr_name = tag+"_"+"ZThetaDistr";
@@ -219,14 +236,14 @@ void ResultContainer<T>::Allocate ( Binning *bins, std::string tag, std::set<TOb
 	ZThetaDistr = new T();
 	ZThetaDistr->SetNameTitle( ZThetaDistr_name.c_str(), ";#Theta [rad];");
 
-	fCollection->insert( ZThetaDistr );
+	fCollection.insert( ZThetaDistr );
 
 	std::string nJetConstituents_name = tag+"_"+"nJetConstituents";
 
 	nJetConstituents = new T();
 	nJetConstituents->SetNameTitle( nJetConstituents_name.c_str(), ";# of jet constitutents;" );
 
-	fCollection->insert( nJetConstituents );
+	fCollection.insert( nJetConstituents );
 
 }
 

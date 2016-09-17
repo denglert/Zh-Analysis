@@ -21,7 +21,7 @@ EXPORT_RUN_ZH_ANA = $(foreach v,$(VAR_RUN_ZH_ANA),$(v)="$(RUN_ZH_ANA_$(v))")
 
 run : build
 	@$(EXPORT_RUN_ZH_ANA) ./scripts/createWD.sh
-	@./bin/Zh-Analyzer $(RUN_ZH_ANA_TAG) $(RUN_ZH_ANA_COMPCONFIG) $(RUN_ZH_ANA_BINCONFIG) $(RUN_ZH_ANA_nEvents)
+	@./bin/Zh-Analyzer $(RUN_ZH_ANA_COMPCONFIG) $(RUN_ZH_ANA_BINCONFIG) $(RUN_ZH_ANA_nEvents)
 
 test :
 	@ echo "Test."
