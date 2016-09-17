@@ -17,26 +17,29 @@ int main(int argc, const char *argv[] )
 	TStyle *myStyle = TStyle_Scheme();
 	gROOT->SetStyle("myStyle");
 
+	// - Analysis FrameWork
 	AnalysisFW AnaFW;
 	AnaFW.nEvents            = nEvents;
 	AnaFW.compConfigFilePath = compConfigFilePath.c_str();
 	AnaFW.binConfigFilePath  =  binConfigFilePath.c_str();
 
+	// Initialize
 	AnaFW.Init();
 
-//	// - Create chain of root trees
-//	TChain chain("Delphes");
+	// Iterate over each component
    for(int i=0; i < AnaFW.components.nComp; i++)
 	{
 		AnaFW.chain->Add( AnaFW.components.component_path[i].c_str() );
 		AnaFW.Analyzer( AnaFW.chain, &AnaFW.histos[i] );
 		AnaFW.chain->Reset();
 	}
-//
-//	// -  Create object of class ExRootTreeReader
-//	ExRootTreeReader *treeReader = new ExRootTreeReader(&chain);
 
-//	AnaFW.Analyzer ( );
+  std::map<TObject*, PlotSettings>::iterator itPlotMap;
+  for(itPlotMap = AnaFW.hstacks.fPlotMap.begin(); itPlotMap != AnaFW.hstacks.fPlotMap.end(); ++itPlotMap)
+  {
+    PlotSettings *settings = &itPlotMap->second;
+    settings->DrawingOption = "";
+  }
 
 	AnaFW.CreateOutputFile();
 	AnaFW.WriteOutput();

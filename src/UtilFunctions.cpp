@@ -146,10 +146,24 @@ void AllocateArrayXYZ(TYPE ****&a, int n1, int n2, int n3)
 //#include "../src/UtilFunctions.tpp"
 
 template <typename T>
-ResultContainer<T>::ResultContainer ( Binning *bins, std::string tag_ )
+ResultContainer<T>::ResultContainer ( const char tag_[], const char prepath_[] )
+{
+	tag  = tag_;
+	prepath = prepath_;
+
+//	ResultContainer<T>::Allocate( bins, tag );
+};
+
+template <typename T>
+void ResultContainer<T>::SetTag  ( const char tag_[]  )
 {
 	tag = tag_;
-	ResultContainer<T>::Allocate( bins, tag );
+};
+
+template <typename T>
+void ResultContainer<T>::SetPrePath ( const char prepath_[] )
+{
+	prepath = prepath_;
 };
 
 
@@ -167,9 +181,10 @@ void ResultContainer<T>::WriteToROOTFile ( TFile *f )
 };
 
 template <typename T>
-void ResultContainer<T>::Allocate ( Binning *bins, std::string tag_ )
+void ResultContainer<T>::Allocate ( Binning *bins )
 {
-	tag = tag_;
+
+	TH1::SetDefaultSumw2( );
 
 	// - Allocate multi-dim arrays for the histo->rams
 	AllocateArrayXYZ( PtDistr,   bins->nCat,    bins->nMult, bins->nLevel);
@@ -178,14 +193,19 @@ void ResultContainer<T>::Allocate ( Binning *bins, std::string tag_ )
 	AllocateArrayXY ( mZhDistr,  bins->nCatmZh,              bins->nLevel);
 	AllocateArrayX  ( nObj,      bins->nCat                              );
 
+	// Plot settings
+	PlotSettings settings;
+	settings.PrePath = prepath;
+	settings.Tag     = tag;
+
 	// - Book histo->rams
 	loopxyz( iCat, iMult, iLvl, bins->nCat, bins->nMult, bins->nLevel )
 	{
 		std::string histoname_pt  = tag+"_"+tag_Multiplicity(iMult)+tag_Cat(iCat)+"_pt_" +tag_Level(iLvl)+"-level";
 		std::string histoname_eta = tag+"_"+tag_Multiplicity(iMult)+tag_Cat(iCat)+"_eta_"+tag_Level(iLvl)+"-level";
 
-		std::string label_pt   = ";p_{T}("+label_Multiplicity(iMult)+label_Cat(iCat)+") [GeV/c] "+label_Level(iLvl)+"-level";
-		std::string label_eta  = ";#eta("+label_Multiplicity(iMult)+label_Cat(iCat)+") "+label_Level(iLvl)+"-level";
+		std::string label_pt   = ";p_{T}("+label_Multiplicity(iMult)+label_Cat(iCat)+") [GeV/c] "+label_Level(iLvl)+"-level;dN/dp_{T}";
+		std::string label_eta  = ";#eta("+label_Multiplicity(iMult)+label_Cat(iCat)+") "+label_Level(iLvl)+"-level/d#eta;";
 
 		PtDistr [iCat][iMult][iLvl] = new T();
 		EtaDistr[iCat][iMult][iLvl] = new T();
@@ -195,28 +215,33 @@ void ResultContainer<T>::Allocate ( Binning *bins, std::string tag_ )
 
 		fCollection.insert(PtDistr   [iCat][iMult][iLvl]);
 		fCollection.insert(EtaDistr  [iCat][iMult][iLvl]);
+
+		fPlotMap[ PtDistr [iCat][iMult][iLvl] ] = settings;
+		fPlotMap[ EtaDistr[iCat][iMult][iLvl] ] = settings;
 	}
 
 	loopxy( iCat, iLvl, bins->nCat, bins->nLevel )
 	{
 		std::string histoname_minv = tag+"_"+"Minv_di-"+tag_Cat(iCat)+"_"+tag_Level(iLvl)+"-level";
-		std::string label_minv 		= ";m_{inv}(di-"+label_Cat(iCat)+") [GeV/c^{2}] "+label_Level(iLvl)+"-level";
+		std::string label_minv 		= ";m_{inv}(di-"+label_Cat(iCat)+") [GeV/c^{2}] "+label_Level(iLvl)+"-level;dN/dm_{inv}";
 
 		MinvDistr[iCat][iLvl] = new T();
 		MinvDistr[iCat][iLvl]->SetNameTitle( histoname_minv.c_str(), label_minv.c_str() ) ;
 
-		fCollection.insert(MinvDistr[iCat][iLvl]);
+		fCollection.insert( MinvDistr[iCat][iLvl] );
+		fPlotMap[ MinvDistr[iCat][iLvl] ] = settings;
 	}
 
 	loopxy( iCat, iLvl, bins->nCatmZh, bins->nLevel )
 	{
 		std::string histoname_jjmumu = tag+"_"+"mZh_jjmumu_"+tag_Cat(iCat)+"_"+tag_Level(iLvl)+"-level";
-		std::string label_jjmumu 	  = ";m_{inv}(#mu#mujj) [GeV/c^{2}] "+tag_Cat(iCat)+"_"+label_Level(iLvl)+"-level";
+		std::string label_jjmumu 	  = ";m_{inv}(#mu#mujj) [GeV/c^{2}] "+tag_Cat(iCat)+"_"+label_Level(iLvl)+"-level;dN/dm_{inv}";
 
 		mZhDistr[iCat][iLvl] = new T();
 		mZhDistr[iCat][iLvl]->SetNameTitle( histoname_jjmumu.c_str(), label_jjmumu.c_str() );
 
 		fCollection.insert(mZhDistr[iCat][iLvl]);
+		fPlotMap[ mZhDistr[iCat][iLvl] ] = settings;
 	}
 
 
@@ -229,14 +254,16 @@ void ResultContainer<T>::Allocate ( Binning *bins, std::string tag_ )
 		nObj[iCat]->SetNameTitle( histoname_nobj.c_str(), label_nobj.c_str() );
 
 		fCollection.insert( nObj[iCat]);
+		fPlotMap[ nObj[iCat] ] = settings;
 	}
 
 	std::string ZThetaDistr_name = tag+"_"+"ZThetaDistr";
 
 	ZThetaDistr = new T();
-	ZThetaDistr->SetNameTitle( ZThetaDistr_name.c_str(), ";#Theta [rad];");
+	ZThetaDistr->SetNameTitle( ZThetaDistr_name.c_str(), ";#Theta [rad];dN/d#Theta");
 
 	fCollection.insert( ZThetaDistr );
+	fPlotMap[ ZThetaDistr ] = settings;
 
 	std::string nJetConstituents_name = tag+"_"+"nJetConstituents";
 
@@ -244,6 +271,8 @@ void ResultContainer<T>::Allocate ( Binning *bins, std::string tag_ )
 	nJetConstituents->SetNameTitle( nJetConstituents_name.c_str(), ";# of jet constitutents;" );
 
 	fCollection.insert( nJetConstituents );
+	fPlotMap[ nJetConstituents ] = settings;
+
 
 }
 

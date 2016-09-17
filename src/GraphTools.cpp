@@ -7,7 +7,9 @@ TStyle* TStyle_Scheme ()
 //	myStyle->SetTitleSize(0.3); 
 //	myStyle->SetTitleX(0.3); 
 	myStyle->SetTitleXOffset(1.5); 
+	myStyle->SetTitleYOffset(1.5); 
 	myStyle->SetTitleSize(0.04,"xy"); 
+	myStyle->SetOptStat(0);
 //	myStyle->SetLabelSize(0.06,"xy"); 
 //
 
@@ -18,29 +20,59 @@ TStyle* TStyle_Scheme ()
 
 
 template<class T>
-void CreatePlot (T *histo, const char basename[])
+void CreatePlot ( T *obj, PlotSettings const& settings)
 {
 	TCanvas canvas("canvas", "canvas", 600, 600);
-	gPad->SetLeftMargin(0.14);
-	gPad->SetBottomMargin(0.15);
-	histo->Draw("E");
-	std::string outfig = basename;
+
+	gPad->SetLeftMargin( settings.LeftMargin  );
+	gPad->SetBottomMargin( settings.BottomMargin );
+
+	obj->Draw( settings.DrawingOption.c_str() );
+
+	std::string prepath = settings.PrePath;
+	std::string outfig  = prepath + obj->GetName();
 	outfig = outfig+".pdf";
+
+	TLegend *leg;
+
+	if ( !settings.fPlotMap.empty() )
+	{
+
+	leg = new TLegend( settings.Legend_Pos_X, settings.Legend_Pos_Y, (settings.Legend_Pos_X+settings.Legend_Wid_X), (settings.Legend_Pos_Y + settings.Legend_Wid_Y) );
+
+	std::map<TObject*, PlotSettings>::const_iterator itPlotMap;
+
+  	for(itPlotMap = settings.fPlotMap.begin(); itPlotMap != settings.fPlotMap.end(); ++itPlotMap)
+  	{
+  	  TH1D* histo = (TH1D*) itPlotMap->first;
+  	  const PlotSettings *sub_settings = &itPlotMap->second;
+	  leg->AddEntry (histo, sub_settings->Tag.c_str());
+	}
+
+	leg->Draw("SAME");
+
+	}
+
+
 	canvas.SaveAs(outfig.c_str());
 }
 
-template void CreatePlot ( TH1D *histo,    const char outfig[]) ;
-template void CreatePlot ( THStack *histo, const char outfig[]) ;
 
-void CreateStackPlot (THStack *hstack, const char basename[])
-{
-	gStyle->SetOptStat(0);
-	TCanvas canvas("canvas", "canvas", 600, 600);
-	gPad->SetLeftMargin(0.14);
-	gPad->SetBottomMargin(0.15);
-	//hstack->Draw("");
-	hstack->Draw("E");
-	std::string outfig = basename;
-	outfig = outfig+".pdf";
-	canvas.SaveAs(outfig.c_str());
-}
+template void CreatePlot ( TH1D *histo,    PlotSettings const& settings) ;
+template void CreatePlot ( THStack *histo, PlotSettings const& settings) ;
+
+
+//////////////////////////////
+//void CreateStackPlot (THStack *hstack, PlotSettings const& settings )
+//{
+//	gStyle->SetOptStat(0);
+//	TCanvas canvas("canvas", "canvas", 600, 600)
+//	gPad->SetLeftMargin( settings.LeftMargin  );
+//	gPad->SetBottomMargin( settings.BottomMargin );
+//	//hstack->Draw("");
+//	hstack->Draw("E");
+//	std::string prepath = settings.PrePath;
+//	std::string outfig = prepath+hstack->GetName();
+//	outfig = outfig+".pdf";
+//	canvas.SaveAs(outfig.c_str());
+//}

@@ -9,13 +9,6 @@
 #include <map>
 #include <cmath>
 
-
-
-struct PlotSettings
-{
-	double BottomMargin;
-};
-
 // - AnalysisFW class
 class AnalysisFW
 {

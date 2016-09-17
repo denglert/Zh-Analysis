@@ -8,6 +8,7 @@
 #include <TFile.h>
 #include <THStack.h>
 #include "config.h"
+#include "GraphTools.h"
 
 #define loopx(x, nx)               for( int x = 0; x < nx; x++)
 #define loopxy(x, y, nx, ny)        for( int x = 0; x < nx; x++)for( int y = 0; y < ny; y++)
@@ -59,13 +60,17 @@ class ResultContainer
 	T *ZThetaDistr;
 
 	std::set<TObject*> fCollection;
+	std::map<TObject*, PlotSettings> fPlotMap;
 
 	std::string tag;
+	std::string prepath;
 
 	ResultContainer ( ){};
-	ResultContainer ( struct Binning *bins, std::string tag_ );
-	void Allocate   ( struct Binning *bins, std::string tag_ );
+	ResultContainer ( const char tag_[], const char prepath_[] );
+	void Allocate   ( struct Binning *bins );
 	void WriteToROOTFile ( TFile *f );
+	void SetTag     ( const char tag_[]     );
+	void SetPrePath ( const char prepath_[] );
 };
 
 class THStackContainer: public ResultContainer<THStack>

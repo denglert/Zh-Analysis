@@ -7,6 +7,8 @@
 void AnalysisFW::Init()
 {
 
+	TH1::SetDefaultSumw2( );
+
 	conf.append(  binConfigFilePath.c_str() ); // - binning configuration 
 	conf.append( compConfigFilePath.c_str() ); // - components configuration
 
@@ -17,13 +19,15 @@ void AnalysisFW::Init()
 	components.lumi  = (double) getconfig(conf,  "lumi"); // - integrated luminosity
 
 	tag  = (std::string) getconfig(conf,  "tag");
-
+	std::string prepath = "./results/"+tag+"/";
 
 	histos  = new TH1DContainer[components.nComp];
 	hstacks = THStackContainer();
 
-	std::string stacktag = "stacks";
-	hstacks.Allocate( &bins, stacktag );
+	hstacks.SetTag    ( "stacks" );
+	hstacks.SetPrePath( prepath.c_str() );
+
+	hstacks.Allocate( &bins );
 
 	printf("Total integrated luminosity:  %12.6f (fb-1)\n", components.lumi);
 	printf("Component name | cross section (fb) | nPhysEvents | nGenEvents | scale\n");
@@ -44,8 +48,11 @@ void AnalysisFW::Init()
 		components.component_scale[i]   = components.lumi * components.component_xsec[i] / components.component_nEvents[i];
 		components.component_color[i]   = (int) getconfig(conf, compcolor.c_str() );
 
-		histos[i].Allocate(  &bins, components.component_name[i] );
+		histos[i].SetTag     ( components.component_name[i].c_str() );
+		histos[i].SetPrePath ( prepath.c_str() );
+		histos[i].Allocate(  &bins );
 		histos[i].SetupBins( &bins ); 
+
 
 		printf("%14s %20.6f %12.2f %12.2f %12.8f\n", components.component_name[i].c_str(), components.component_xsec[i], components.lumi*components.component_xsec[i], components.component_nEvents[i], components.component_scale[i]);
 	}
@@ -111,9 +118,9 @@ void AnalysisFW::MakePlots( )
   	 	std::string name        = (*itHisto)->GetName();
   	 	std::string figfullpath = prepath+name;
 		TH1D* histo = (TH1D*) (*itHisto);
-  	 	CreatePlot( histo, figfullpath.c_str() );
+	  	histo->Scale( components.component_scale[iComp], "width" );
+  	 	CreatePlot( histo, histos[iComp].fPlotMap[histo] );
 
-		histo->Scale( components.component_scale[iComp] );
 
     	}
 
@@ -138,13 +145,18 @@ void AnalysisFW::MakePlots( )
 			histo->SetMarkerColor( Colors[iComp] );
 			histo->SetMarkerStyle( 21 );
 			histo->SetStats(false);
-			hstack->Add ( histo );
+			hstack->Add ( histo, "hist" );
+			
+			// Get THStack hstacks settings
+			PlotSettings *settings = &hstacks.fPlotMap[hstack];
+			settings->fPlotMap[ histo ] = histos[iComp].fPlotMap[ histo ] ;
+
 			itHistos[iComp]++;
 		 }
 
   	 	std::string name        = hstack->GetName();
   	 	std::string figfullpath = prepath+name;
-  	 	CreateStackPlot( hstack, figfullpath.c_str() );
+  	 	CreatePlot( hstack, hstacks.fPlotMap[hstack] );
 
 	 }
 
