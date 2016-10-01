@@ -16,6 +16,7 @@
 
 #define MAXNCOMPONENT 10
 
+///
 struct Binning
 {
 	int nCat;
@@ -46,6 +47,7 @@ struct Binning
 	  	
 };
 
+///
 template <typename T>
 class ResultContainer
 {
@@ -73,19 +75,20 @@ class ResultContainer
 	void SetPrePath ( const char prepath_[] );
 };
 
+/////
 class THStackContainer: public ResultContainer<THStack>
 {
 	public:
 };
 
+////
 class TH1DContainer: public ResultContainer<TH1D>
 {
 	public:
 	void SetupBins  ( struct Binning *bins  );
 };
 
-
-
+////
 struct Cuts
 {
 	double cutMuonPtMin;

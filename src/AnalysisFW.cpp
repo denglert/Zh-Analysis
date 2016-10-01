@@ -18,7 +18,7 @@ void AnalysisFW::Init()
 	components.nComp = (int)    getconfig(conf, "nComp"); // - number of components
 	components.lumi  = (double) getconfig(conf,  "lumi"); // - integrated luminosity
 
-	tag  = (std::string) getconfig(conf,  "tag");
+	//tag  = (std::string) getconfig(conf,  "tag");
 	std::string prepath = "./results/"+tag+"/";
 
 	histos  = new TH1DContainer[components.nComp];

@@ -129,16 +129,20 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 		   }
 
 
+			// - Single jet distributions
+			// without cuts
 			// Fill reco level jets
 			histo->PtDistr [jet][mono][reco]->Fill( jetA->PT );
 			histo->EtaDistr[jet][mono][reco]->Fill( jetA->Eta );
 
 
+			// Fill gene level jets
 			histo->PtDistr [jet][mono][gene]->Fill( p_jetA_Const.Pt()  );
 			histo->EtaDistr[jet][mono][gene]->Fill( p_jetA_Const.Eta() );
 
 
-			// Applyting cuts
+			// - Single jet distributions
+			// with cuts
 			if( CutJet(jetA) == true )
 			{
 				histo->PtDistr [jet][mono][recocut]->Fill( jetA->PT );
@@ -148,17 +152,19 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				histo->EtaDistr[jet][mono][genecut]->Fill( p_jetA_Const.Eta() );
 			}
 
-			// Applying btag
+			// - Single bjet distributions
 			if( jetA->BTag == true )
 			{
+
 				nBJets++;
+				// without cuts
 				histo->PtDistr [bjet][mono][reco]->Fill( jetA->PT );
 				histo->EtaDistr[bjet][mono][reco]->Fill( jetA->Eta );
 
 				histo->PtDistr [bjet][mono][gene]->Fill( p_jetA_Const.Pt()  );
 				histo->EtaDistr[bjet][mono][gene]->Fill( p_jetA_Const.Eta() );
 
-				// Applying btag & cuts
+				// with cuts
 				if( CutJet(jetA) == true )
 				{
 					histo->PtDistr [bjet][mono][recocut]->Fill( jetA->PT );
@@ -219,6 +225,7 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				TLorentzVector p_jj      = jetA->P4()   + jetB->P4();
 				TLorentzVector p_jj_gene = p_jetA_Const + p_jetB_Const;
 
+				// without cuts
 				histo->MinvDistr[jet]    [reco]->Fill( p_jj.M()        );
 				histo->EtaDistr [jet][di][reco]->Fill( p_jj.Eta()      );
 				histo->PtDistr  [jet][di][reco]->Fill( p_jj.Pt()       );
@@ -226,7 +233,9 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				histo->PtDistr  [jet][di][gene]->Fill( p_jj_gene.Pt()  );
 				histo->EtaDistr [jet][di][gene]->Fill( p_jj_gene.Eta() );
 
-				if( CutJet(jetB) == true )
+				// with cuts
+				// Cuts on jetA & jetB are satisfied & also on h candidate
+				if( (CutJet(jetA) == true) && (CutJet(jetB) == true) && ( Cuthcandidate( p_jj ) ) )
 				{
 					histo->MinvDistr[jet]    [recocut]->Fill( p_jj.M()  );
 					histo->MinvDistr[jet]    [genecut]->Fill( p_jj_gene.M() );
@@ -237,6 +246,7 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				}
 
 
+				// without cuts but with bjets
 				if( (jetA->BTag == true) && (jetB->BTag == true) )
 				{
 					histo->MinvDistr[bjet]    [reco]->Fill( p_jj.M()        );
@@ -246,7 +256,7 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 					histo->PtDistr  [bjet][di][gene]->Fill( p_jj_gene.Pt()  );
 					histo->EtaDistr [bjet][di][gene]->Fill( p_jj_gene.Eta() );
 
-					if( CutJet(jetB) == true )
+					if( (CutJet(jetA) == true) && (CutJet(jetB) == true) && ( Cuthcandidate( p_jj ) ))
 					{
 						histo->MinvDistr[bjet]    [recocut]->Fill( p_jj.M()        );
 						histo->MinvDistr[bjet]    [genecut]->Fill( p_jj_gene.M()   );
@@ -349,12 +359,14 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 		   muA_gen = (GenParticle*) muA->Particle.GetObject();
 
 
+			// - Single mu distributions
+			// without cuts
 			histo->PtDistr [mu][mono][reco]->Fill( muA->PT );
 			histo->EtaDistr[mu][mono][reco]->Fill( muA->Eta );
 			histo->PtDistr [mu][mono][gene]->Fill( muA_gen->PT );
 			histo->EtaDistr[mu][mono][gene]->Fill( muA_gen->Eta );
 
-			// Applying cuts
+			// with cuts
 			if( CutMuon(muA) == true )
 			{
 				histo->PtDistr [mu][mono][recocut]->Fill( muA->PT );
@@ -363,6 +375,7 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				histo->EtaDistr[mu][mono][genecut]->Fill( muA_gen->Eta );
 			}
 
+			// - Second muon loop
 			for(int jMuon = iMuon+1; jMuon < nMuons; jMuon++)
 			{
 				
@@ -371,7 +384,8 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 
 				TLorentzVector p_mumu = muA->P4() + muB->P4();
 				TLorentzVector p_mumu_gen = muA_gen->P4() + muB_gen->P4();
-
+				
+				// without cuts
 				histo->MinvDistr[mu]    [reco]->Fill( p_mumu.M()   );
 				histo->PtDistr  [mu][di][reco]->Fill( p_mumu.Pt()  );
 				histo->EtaDistr [mu][di][reco]->Fill( p_mumu.Eta() );
@@ -380,8 +394,8 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				histo->PtDistr  [mu][di][gene]->Fill( p_mumu_gen.Pt()  );
 				histo->EtaDistr [mu][di][gene]->Fill( p_mumu_gen.Eta() );
 
-				// Applying cuts
-				if( CutMuon(muB) == true )
+				// with cuts
+				if( (CutMuon(muA) == true) && (CutMuon(muB) == true) && (CutZcandidate(p_mumu) == true) )
 				{
 					histo->MinvDistr[mu]    [recocut]->Fill( p_mumu.M()   );
 					histo->PtDistr  [mu][di][recocut]->Fill( p_mumu.Pt()  );
@@ -485,7 +499,9 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				}
 			}
 
-			TLorentzVector p_jjmumu     = jetA->P4() + jetB->P4() + muA->P4() + muB->P4();
+			TLorentzVector p_jj     = jetA->P4() + jetB->P4();
+			TLorentzVector p_mumu   = muA->P4() + muB->P4();
+			TLorentzVector p_jjmumu     = p_jj + p_mumu;
 			TLorentzVector p_jjmumu_gen = p_jetA_Const + p_jetB_Const + muA_gen->P4() + muB_gen->P4();
 
 			histo->mZhDistr[jet][reco]->Fill( p_jjmumu.M()     );
@@ -497,7 +513,7 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				histo->mZhDistr[bjet][gene]->Fill( p_jjmumu_gen.M() );
 			}
 
-			if ( (CutJet(jetA) == true) && (CutJet(jetB) == true) && (CutMuon(muB) == true) && (CutMuon(muB)== true) )
+			if ( (CutJet(jetA) == true) && (CutJet(jetB) == true) && (CutMuon(muB) == true) && (CutMuon(muB)== true) && (Cuthcandidate(p_jj)) && (CutZcandidate(p_mumu))  )
 			{
 				histo->mZhDistr[jet][recocut]->Fill( p_jjmumu.M()     );
 				histo->mZhDistr[jet][genecut]->Fill( p_jjmumu_gen.M() );
@@ -527,8 +543,8 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 //
 bool AnalysisFW::CutJet(Jet* jet)
 {
-	if ( jet->PT  < cuts.cutJetPtMin ) return false;
-	if ( abs(jet->Eta) > cuts.cutJetEtaMax     ) return false;
+	if ( jet->PT       < cuts.cutJetPtMin  ) return false;
+	if ( abs(jet->Eta) > cuts.cutJetEtaMax ) return false;
 
 	return true;
 }
@@ -536,8 +552,8 @@ bool AnalysisFW::CutJet(Jet* jet)
 //
 bool AnalysisFW::CutMuon(Muon* mu)
 {
-	if ( mu->PT  < cuts.cutMuonPtMin ) return false;
-	if ( abs(mu->Eta) > cuts.cutMuonEtaMax     ) return false;
+	if ( mu->PT  < cuts.cutMuonPtMin       ) return false;
+	if ( abs(mu->Eta) > cuts.cutMuonEtaMax ) return false;
 
 	return true;
 }
@@ -547,6 +563,33 @@ bool AnalysisFW::CutElectron(Electron* el)
 {
 	if ( el->PT  < cuts.cutElectronPtMin ) return false;
 	if ( abs(el->Eta) > cuts.cutElectronEtaMax     ) return false;
+
+	return true;
+
+}
+
+//
+bool AnalysisFW::CutZcandidate(TLorentzVector const &p)
+{
+	double m = p.M();
+
+	if ( m < cuts.cutZMinvMin ) return false;
+	if ( cuts.cutZMinvMax < m ) return false;
+
+	double pt = p.Pt();
+
+	if ( pt < cuts.cutZPtMin ) return false;
+	if ( cuts.cutZPtMax < pt ) return false;
+
+	return true;
+}
+
+//
+bool AnalysisFW::Cuthcandidate(TLorentzVector const &p)
+{
+	double m = p.M();
+	if ( m < cuts.cuthMinvMin ) return false;
+	if ( cuts.cuthMinvMax < m ) return false;
 
 	return true;
 

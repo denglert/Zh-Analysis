@@ -28,6 +28,8 @@ class AnalysisFW
 	bool CutJet      ( Jet *jet     );
 	bool CutMuon     ( Muon *mu     );
 	bool CutElectron ( Electron *el );
+	bool Cuthcandidate ( TLorentzVector const &el );
+	bool CutZcandidate ( TLorentzVector const &el );
 
 	int nEvents;
 

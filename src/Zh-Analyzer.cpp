@@ -3,15 +3,16 @@
 int main(int argc, const char *argv[] ) 
 {
 
-	if (argc != 4)
+	if (argc != 5)
 	{
-		std::cerr << "Usage: ./Zh-Analyzer <comp.conf> <bin.conf> <nEvents>" << std::endl;
+		std::cerr << "Usage: ./Zh-Analyzer <tag> <comp.conf> <bin.conf> <nEvents>" << std::endl;
 		exit(1);
 	}
 
-	std::string compConfigFilePath = argv[1];
-	std::string  binConfigFilePath = argv[2];
-	int nEvents 				       = atoi(argv[3]);
+	std::string                tag = argv[1];
+	std::string compConfigFilePath = argv[2];
+	std::string  binConfigFilePath = argv[3];
+	int nEvents 				       = atoi(argv[4]);
 	
 	// - Plotting style
 	TStyle *myStyle = TStyle_Scheme();
@@ -19,6 +20,7 @@ int main(int argc, const char *argv[] )
 
 	// - Analysis FrameWork
 	AnalysisFW AnaFW;
+	AnaFW.tag 		          = tag;
 	AnaFW.nEvents            = nEvents;
 	AnaFW.compConfigFilePath = compConfigFilePath.c_str();
 	AnaFW.binConfigFilePath  =  binConfigFilePath.c_str();
@@ -38,15 +40,15 @@ int main(int argc, const char *argv[] )
   for(itPlotMap = AnaFW.hstacks.fPlotMap.begin(); itPlotMap != AnaFW.hstacks.fPlotMap.end(); ++itPlotMap)
   {
     PlotSettings *settings = &itPlotMap->second;
-    settings->DrawingOption = "";
+    settings->DrawingOption = "E";
   }
 
 	AnaFW.CreateOutputFile();
 	AnaFW.WriteOutput();
-
+	
 	std::cout << std::endl;
 	AnaFW.MakePlots();
-
+	
 	return 0;
 
 }
