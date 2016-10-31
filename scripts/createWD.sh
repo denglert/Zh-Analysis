@@ -4,10 +4,14 @@ if [ -z ${TAG+x} ]; then
 	exit 1 # throws an error, Makefile stops.
 else
    if [ -d ./results/${TAG} ]; then
+   echo "";
+   echo "Warning!";
+   echo "";
    echo "There is already a ./results/${TAG}. Making copy to ./backup";
       cp -rf ./results/${TAG}/ ./backup/${TAG}/;
       rm -rf ./results/${TAG};
    fi
    echo "Creating new working directory ./results/${TAG}.";
+   echo "";
 	mkdir -p ./results/${TAG}/;
 fi

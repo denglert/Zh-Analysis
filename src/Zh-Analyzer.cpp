@@ -48,6 +48,20 @@ int main(int argc, const char *argv[] )
 	
 	std::cout << std::endl;
 	AnaFW.MakePlots();
+
+	// Custom plots
+	TCanvas canvas("canvas", "canvas", 600, 600);
+
+	gPad->SetLeftMargin(   0.14 );
+	gPad->SetBottomMargin( 0.15 );
+	
+	AnaFW.histos[0].mZhDistr[bjet][recocut]->SetMaximum(0.05);
+	AnaFW.histos[0].mZhDistr[bjet][recocut]->SetMinimum(-0.05);
+	AnaFW.histos[0].mZhDistr[bjet][recocut]->Draw();
+	AnaFW.histos[1].mZhDistr[bjet][recocut]->Draw("SAME");
+	AnaFW.histos[2].mZhDistr[bjet][recocut]->Draw("SAME");
+
+	canvas.SaveAs("plot.pdf");
 	
 	return 0;
 
