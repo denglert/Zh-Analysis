@@ -18,7 +18,10 @@ class AnalysisFW
 	AnalysisFW( const char confFilePath_[] );
 	AnalysisFW( );
 
-	void Analyzer( TChain *chain, ResultContainer<TH1D> *histo);
+	void Analyzer           ( TChain *chain, ResultContainer<TH1D> *histo );
+	void PartonLevelAnalyzer( TChain *chain, ResultContainer<TH1D> *histo );
+
+
 	void MakePlots( );
 	void CreateOutputFile();
 	void WriteOutput();

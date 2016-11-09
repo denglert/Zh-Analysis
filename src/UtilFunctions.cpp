@@ -235,7 +235,7 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 	loopxy( iCat, iLvl, bins->nCatmZh, bins->nLevel )
 	{
 		std::string histoname_jjmumu = tag+"_"+"mZh_jjmumu_"+tag_Cat(iCat)+"_"+tag_Level(iLvl)+"-level";
-		std::string label_jjmumu 	  = ";m_{inv}(#mu#mujj) [GeV/c^{2}] "+tag_Cat(iCat)+"_"+label_Level(iLvl)+"-level;dN/dm_{inv}";
+		std::string label_jjmumu 	  = ";m_{inv}(Zh) [GeV/c^{2}] "+tag_Cat(iCat)+"_"+label_Level(iLvl)+"-level;dN/dm_{inv}";
 
 		mZhDistr[iCat][iLvl] = new T();
 		mZhDistr[iCat][iLvl]->SetNameTitle( histoname_jjmumu.c_str(), label_jjmumu.c_str() );
