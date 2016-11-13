@@ -619,7 +619,7 @@ void AnalysisFW::PartonLevelAnalyzer( TChain *chain, ResultContainer<TH1D> *hist
 			  int PID    = particle->PID;
 			  int Status = particle->Status;
 	
-				if ( (particle->PID == 25) && (particle->Status == 2) )
+				if ( (particle->PID == 25) && (particle->Status == 3) )
 				{ 
 					p_h = particle->P4();
 					hFound = true;
@@ -627,7 +627,7 @@ void AnalysisFW::PartonLevelAnalyzer( TChain *chain, ResultContainer<TH1D> *hist
 //		  			printf("h found: %5d %1d\n", PID, Status);
 				}
 
-				if ( (particle->PID == 23) && (particle->Status == 2) )
+				if ( (particle->PID == 23) && (particle->Status == 3) )
 				{ 
 					p_Z = particle->P4();
 					ZFound = true;

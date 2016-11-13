@@ -12,8 +12,8 @@ void AnalysisFW::Init()
 	conf.append(  binConfigFilePath.c_str() ); // - binning configuration 
 	conf.append( compConfigFilePath.c_str() ); // - components configuration
 
-	LoadBinningConfig( &conf, &bins);
-  	   LoadCutsConfig( &conf, &cuts);
+	bins.LoadBinningConfig( &conf );
+   LoadCutsConfig( &conf, &cuts);
 
 	components.nComp = (int)    getconfig(conf, "nComp"); // - number of components
 	components.lumi  = (double) getconfig(conf,  "lumi"); // - integrated luminosity
@@ -108,20 +108,18 @@ void AnalysisFW::MakePlots( )
 
 //  Warning: Need to fix this !!!
 
-
     std::set<TObject*>::iterator itHisto;
     for(int iComp = 0; iComp < components.nComp; iComp++)
 	 {
 
     	for(itHisto = histos[iComp].fCollection.begin(); itHisto != histos[iComp].fCollection.end(); ++itHisto)
     	{
-  	 	std::string name        = (*itHisto)->GetName();
-  	 	std::string figfullpath = prepath+name;
-		TH1D* histo = (TH1D*) (*itHisto);
-	  	histo->Scale( components.component_scale[iComp], "width" );
-  	 	CreatePlot( histo, histos[iComp].fPlotMap[histo] );
-
-
+	  	 	std::string name        = (*itHisto)->GetName();
+	  	 	std::string figfullpath = prepath+name;
+			TH1D* histo = (TH1D*) (*itHisto);
+			if ( histo->GetEntries() == 0) { printf("%s seems to be empty. No plot created.\n", histo->GetName()); continue;}
+		  	histo->Scale( components.component_scale[iComp], "width" );
+	  	 	CreatePlot( histo, histos[iComp].fPlotMap[histo] );
     	}
 
 	 }
@@ -138,9 +136,12 @@ void AnalysisFW::MakePlots( )
 
 		THStack* hstack = (THStack*) (*itStack);
 
+
+		 bool empty = true;
 	    for(int iComp = 0; iComp < components.nComp; iComp++)
 		 {
 			TH1D* histo = (TH1D*) (*itHistos[iComp]);
+			if ( histo->GetEntries() == 0) { empty=true;}
 			histo->SetFillColor  ( Colors[iComp] );
 			histo->SetMarkerColor( Colors[iComp] );
 			histo->SetMarkerStyle( 21 );
@@ -154,9 +155,12 @@ void AnalysisFW::MakePlots( )
 			itHistos[iComp]++;
 		 }
 
-  	 	std::string name        = hstack->GetName();
-  	 	std::string figfullpath = prepath+name;
-  	 	CreatePlot( hstack, hstacks.fPlotMap[hstack] );
+		if ( !empty )
+		{
+  	 		std::string name        = hstack->GetName();
+  	 		std::string figfullpath = prepath+name;
+  	 		CreatePlot( hstack, hstacks.fPlotMap[hstack] );
+      }
 
 	 }
 

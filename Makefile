@@ -31,7 +31,8 @@
 #RUN_ZH_ANA_nEvents    = -1
 
 # Test
-RUN_ZH_ANA_TAG        = test
+RUN_ZH_ANA_TAG        = SM_gg_Zh_parton_level
+#RUN_ZH_ANA_TAG        = 2HDMtII_gg_Zh_parton_level
 RUN_ZH_ANA_BINCONFIG  = ./config/bin_test.conf
 RUN_ZH_ANA_COMPCONFIG = ./config/comp_test.conf
 RUN_ZH_ANA_nEvents    = -1

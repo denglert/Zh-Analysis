@@ -201,11 +201,11 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 	// - Book histo->rams
 	loopxyz( iCat, iMult, iLvl, bins->nCat, bins->nMult, bins->nLevel )
 	{
-		std::string histoname_pt  = tag+"_"+tag_Multiplicity(iMult)+tag_Cat(iCat)+"_pt_" +tag_Level(iLvl)+"-level";
-		std::string histoname_eta = tag+"_"+tag_Multiplicity(iMult)+tag_Cat(iCat)+"_eta_"+tag_Level(iLvl)+"-level";
+		std::string histoname_pt  = tag+"_"+bins->tag_Mult(iMult)+bins->tag_Cat(iCat)+"_pt_" +bins->tag_Level(iLvl)+"-level";
+		std::string histoname_eta = tag+"_"+bins->tag_Mult(iMult)+bins->tag_Cat(iCat)+"_eta_"+bins->tag_Level(iLvl)+"-level";
 
-		std::string label_pt   = ";p_{T}("+label_Multiplicity(iMult)+label_Cat(iCat)+") [GeV/c] "+label_Level(iLvl)+"-level;dN/dp_{T}";
-		std::string label_eta  = ";#eta("+label_Multiplicity(iMult)+label_Cat(iCat)+") "+label_Level(iLvl)+"-level/d#eta;";
+		std::string label_pt   = ";p_{T}("+bins->label_Mult(iMult)+bins->label_Cat(iCat)+") [GeV/c] "+bins->label_Level(iLvl)+"-level;dN/dp_{T}";
+		std::string label_eta  = ";#eta("+ bins->label_Mult(iMult)+bins->label_Cat(iCat)+") "        +bins->label_Level(iLvl)+"-level/d#eta;";
 
 		PtDistr [iCat][iMult][iLvl] = new T();
 		EtaDistr[iCat][iMult][iLvl] = new T();
@@ -222,8 +222,8 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 
 	loopxy( iCat, iLvl, bins->nCat, bins->nLevel )
 	{
-		std::string histoname_minv = tag+"_"+"Minv_di-"+tag_Cat(iCat)+"_"+tag_Level(iLvl)+"-level";
-		std::string label_minv 		= ";m_{inv}(di-"+label_Cat(iCat)+") [GeV/c^{2}] "+label_Level(iLvl)+"-level;dN/dm_{inv}";
+		std::string histoname_minv = tag+"_"+"Minv_di-"+bins->tag_Cat(iCat)+"_"+bins->tag_Level(iLvl)+"-level";
+		std::string label_minv 		= ";m_{inv}(di-"+bins->label_Cat(iCat)+") [GeV/c^{2}] "+bins->label_Level(iLvl)+"-level;dN/dm_{inv}";
 
 		MinvDistr[iCat][iLvl] = new T();
 		MinvDistr[iCat][iLvl]->SetNameTitle( histoname_minv.c_str(), label_minv.c_str() ) ;
@@ -234,11 +234,11 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 
 	loopxy( iCat, iLvl, bins->nCatmZh, bins->nLevel )
 	{
-		std::string histoname_jjmumu = tag+"_"+"mZh_jjmumu_"+tag_Cat(iCat)+"_"+tag_Level(iLvl)+"-level";
-		std::string label_jjmumu 	  = ";m_{inv}(Zh) [GeV/c^{2}] "+tag_Cat(iCat)+"_"+label_Level(iLvl)+"-level;dN/dm_{inv}";
+		std::string histoname_mZh = tag+"_"+"mZh_"+bins->tag_Cat(iCat)+"_"+bins->tag_Level(iLvl)+"-level";
+		std::string label_mZh 	  = ";m_{inv}(Zh) [GeV/c^{2}] "+bins->tag_Cat(iCat)+"_"+bins->label_Level(iLvl)+"-level;dN/dm_{inv}";
 
 		mZhDistr[iCat][iLvl] = new T();
-		mZhDistr[iCat][iLvl]->SetNameTitle( histoname_jjmumu.c_str(), label_jjmumu.c_str() );
+		mZhDistr[iCat][iLvl]->SetNameTitle( histoname_mZh.c_str(), label_mZh.c_str() );
 
 		fCollection.insert(mZhDistr[iCat][iLvl]);
 		fPlotMap[ mZhDistr[iCat][iLvl] ] = settings;
@@ -247,8 +247,8 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 
 	loopx( iCat, bins->nCat)
 	{
-		std::string histoname_nobj = tag+"_"+"n"+tag_Cat(iCat);
-		std::string label_nobj 		= ";N_{"+label_Cat(iCat)+"}";
+		std::string histoname_nobj = tag+"_"+"n"+bins->tag_Cat(iCat);
+		std::string label_nobj 		= ";N_{"+bins->label_Cat(iCat)+"}";
 
 		nObj[iCat] = new T();
 		nObj[iCat]->SetNameTitle( histoname_nobj.c_str(), label_nobj.c_str() );
@@ -310,36 +310,97 @@ void TH1DContainer::SetupBins ( Binning *bins )
 template class ResultContainer<TH1D>;
 template class ResultContainer<THStack>;
 
-void LoadBinningConfig( config *conf, Binning *bins)
+/////////////////////
+// --- Binning --- //
+/////////////////////
+
+void Binning::LoadBinningConfig( config *conf)
 {
 	// Bins
-	bins->nCat      = getconfig((*conf), "nCat"  );
-	bins->nMult     = getconfig((*conf), "nMult" );
-	bins->nLevel    = getconfig((*conf), "nLevel");
+	nCat      = getconfig((*conf), "nCat"  );
+	nMult     = getconfig((*conf), "nMult" );
+	nLevel    = getconfig((*conf), "nLevel");
 
-	bins->nCatmZh   = getconfig((*conf), "nCatmZh");
+	nCatmZh   = getconfig((*conf), "nCatmZh");
 
-	bins->nPtBins   = getconfig((*conf), "nPtBins");
-	bins->PtMin     = getconfig((*conf), "PtMin"  );
-	bins->PtMax     = getconfig((*conf), "PtMax"  );
+	nPtBins   = getconfig((*conf), "nPtBins");
+	PtMin     = getconfig((*conf), "PtMin"  );
+	PtMax     = getconfig((*conf), "PtMax"  );
 
-	bins->nEtaBins  = getconfig((*conf), "nEtaBins");
-	bins->EtaMin    = getconfig((*conf), "EtaMin");
-	bins->EtaMax    = getconfig((*conf), "EtaMax");
+	nEtaBins  = getconfig((*conf), "nEtaBins");
+	EtaMin    = getconfig((*conf), "EtaMin");
+	EtaMax    = getconfig((*conf), "EtaMax");
 
-	bins->nMinvBins = getconfig((*conf), "nMinvBins");
-	bins->MinvMin   = getconfig((*conf), "MinvMin");
-	bins->MinvMax   = getconfig((*conf), "MinvMax");
+	nMinvBins = getconfig((*conf), "nMinvBins");
+	MinvMin   = getconfig((*conf), "MinvMin");
+	MinvMax   = getconfig((*conf), "MinvMax");
 
-	bins->nmZhBins  = getconfig((*conf), "nmZhBins");
-	bins->mZhMin    = getconfig((*conf), "mZhMin");
-	bins->mZhMax    = getconfig((*conf), "mZhMax");
+	nmZhBins  = getconfig((*conf), "nmZhBins");
+	mZhMin    = getconfig((*conf), "mZhMin");
+	mZhMax    = getconfig((*conf), "mZhMax");
 
-	bins->nObjBins  = getconfig((*conf), "nObjBins");
-	bins->ObjMin    = getconfig((*conf), "ObjMin");
-	bins->ObjMax    = getconfig((*conf), "ObjMax");
+	nObjBins  = getconfig((*conf), "nObjBins");
+	ObjMin    = getconfig((*conf), "ObjMin");
+	ObjMax    = getconfig((*conf), "ObjMax");
+
+
+	for(int i=0; i<nCat; i++)
+	{
+		tagCatName.push_back(   (std::string)getconfig((*conf), Form("tagCatName%d", i) ) );
+		labelCatName.push_back( (std::string)getconfig((*conf), Form("labelCatName%d", i) ) );
+	}
+
+
+	for(int i=0; i<nMult; i++)
+	{
+		tagMultName.push_back(   (std::string)getconfig((*conf), Form("tagMultName%d", i) ) );
+		labelMultName.push_back( (std::string)getconfig((*conf), Form("labelMultName%d", i) ) );
+	}
+
+	for(int i=0; i<nLevel; i++)
+	{
+		tagLevelName.push_back(   (std::string)getconfig((*conf), Form("tagLevelName%d", i) ) );
+		labelLevelName.push_back( (std::string)getconfig((*conf), Form("labelLevelName%d", i) ) );
+	}
+
 }
 
+
+std::string Binning::tag_Cat (const int  id)
+{
+	return tagCatName[id];
+}
+
+
+std::string Binning::tag_Level (const int  id)
+{
+	return tagLevelName[id];
+}
+
+
+std::string Binning::tag_Mult (const int  id)
+{
+	return tagMultName[id];
+}
+
+
+std::string Binning::label_Cat (const int  id)
+{
+	return labelCatName[id];
+}
+
+
+std::string Binning::label_Level (const int  id)
+{
+	return labelLevelName[id];
+}
+
+std::string Binning::label_Mult (const int  id)
+{
+	return labelMultName[id];
+}
+
+///////////////////////////////////////////////
 
 void LoadCutsConfig(    config *conf, Cuts *cuts)
 {

@@ -25,8 +25,12 @@ int main(int argc, const char *argv[] )
 	AnaFW.compConfigFilePath = compConfigFilePath.c_str();
 	AnaFW.binConfigFilePath  =  binConfigFilePath.c_str();
 
+	std::cerr << "Before initialization " << std::endl;
+
 	// Initialize
 	AnaFW.Init();
+
+	std::cerr << "After initialization " << std::endl;
 
 	// Iterate over each component
    for(int i=0; i < AnaFW.components.nComp; i++)

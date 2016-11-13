@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 #include <set>
 #include <TH1D.h>
 #include <TFile.h>
@@ -17,13 +18,38 @@
 #define MAXNCOMPONENT 10
 
 ///
-struct Binning
+class Binning
 {
+
+	public:
+	void LoadBinningConfig( config *conf );
+
 	int nCat;
 	int nMult;
 	int nLevel; 
 
 	int nCatmZh;
+
+	std::vector< std::string > tagCatName;
+	std::vector< std::string > tagLevelName;
+	std::vector< std::string > tagMultName;
+
+	std::vector< std::string > labelCatName;
+	std::vector< std::string > labelLevelName;
+	std::vector< std::string > labelMultName;
+
+
+	std::string tag_Cat  (const int  id);
+	std::string tag_Mult (const int  id);
+	std::string tag_Level  (const int  id);
+
+	std::string label_Cat  (const int  id);
+	std::string label_Mult (const int  id);
+	std::string label_Level  (const int  id);
+
+//	std::string *strCatName  = NULL;
+//	std::string *strLvlName  = NULL;
+//	std::string *strMultName = NULL;
 
 	double nPtBins;
 	double PtMin;
@@ -69,7 +95,7 @@ class ResultContainer
 
 	ResultContainer ( ){};
 	ResultContainer ( const char tag_[], const char prepath_[] );
-	void Allocate   ( struct Binning *bins );
+	void Allocate   ( Binning *bins );
 	void WriteToROOTFile ( TFile *f );
 	void SetTag     ( const char tag_[]     );
 	void SetPrePath ( const char prepath_[] );
@@ -85,7 +111,7 @@ class THStackContainer: public ResultContainer<THStack>
 class TH1DContainer: public ResultContainer<TH1D>
 {
 	public:
-	void SetupBins  ( struct Binning *bins  );
+	void SetupBins  ( Binning *bins  );
 };
 
 ////
@@ -137,7 +163,6 @@ std::string tag_Level          ( const int id );
 
 void progress_bar( double percent );
 
-void LoadBinningConfig( config *conf, Binning *bins);
 void LoadCutsConfig(    config *conf, Cuts *cuts);
 
 // --- Allocation functions
