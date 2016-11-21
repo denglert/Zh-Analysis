@@ -195,8 +195,8 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 
 	// Plot settings
 	PlotSettings settings;
-	settings.PrePath = prepath;
-	settings.Tag     = tag;
+	settings.PrePath   = prepath;
+	settings.Tag       = tag;
 
 	// - Book histo->rams
 	loopxyz( iCat, iMult, iLvl, bins->nCat, bins->nMult, bins->nLevel )
@@ -274,6 +274,19 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 	fPlotMap[ nJetConstituents ] = settings;
 
 
+}
+
+// -- Set legend labels for all histograms
+template <typename T>
+void ResultContainer<T>::SetLegendLabel ( const char label_[] )
+{
+	std::map<TObject*, PlotSettings>::iterator itPlotMap;
+
+  	for(itPlotMap = fPlotMap.begin(); itPlotMap != fPlotMap.end(); ++itPlotMap)
+  	{
+  	  PlotSettings *settings = &itPlotMap->second;
+	  settings->LegendLabel = label_;
+	}
 }
 
 ////////////////////

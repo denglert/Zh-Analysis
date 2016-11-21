@@ -2,5 +2,6 @@ bin/
 lib/
 *.depend_cpp
 backup/
-results/test
+results/*
+config/*
 tmp/

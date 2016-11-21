@@ -19,6 +19,10 @@ TStyle* TStyle_Scheme ()
 }
 
 
+/////////////////////////
+// --- CreatePlot --- ///
+/////////////////////////
+
 template<class T>
 void CreatePlot ( T *obj, PlotSettings const& settings)
 {
@@ -46,7 +50,8 @@ void CreatePlot ( T *obj, PlotSettings const& settings)
   	{
   	  TH1D* histo = (TH1D*) itPlotMap->first;
   	  const PlotSettings *sub_settings = &itPlotMap->second;
-	  leg->AddEntry (histo, sub_settings->Tag.c_str());
+	  leg->SetTextSize( settings.Legend_Text_Size );
+	  leg->AddEntry (histo, sub_settings->LegendLabel.c_str());
 	}
 
 	leg->Draw("SAME");

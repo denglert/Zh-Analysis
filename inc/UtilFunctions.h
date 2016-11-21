@@ -11,8 +11,8 @@
 #include "config.h"
 #include "GraphTools.h"
 
-#define loopx(x, nx)               for( int x = 0; x < nx; x++)
-#define loopxy(x, y, nx, ny)        for( int x = 0; x < nx; x++)for( int y = 0; y < ny; y++)
+#define loopx(x, nx)                 for( int x = 0; x < nx; x++)
+#define loopxy(x, y, nx, ny)         for( int x = 0; x < nx; x++)for( int y = 0; y < ny; y++)
 #define loopxyz(x, y, z, nx, ny, nz) for( int x = 0; x < nx; x++)for( int y = 0; y < ny; y++)for( int z = 0; z < nz; z++)
 
 #define MAXNCOMPONENT 10
@@ -95,10 +95,12 @@ class ResultContainer
 
 	ResultContainer ( ){};
 	ResultContainer ( const char tag_[], const char prepath_[] );
+
 	void Allocate   ( Binning *bins );
 	void WriteToROOTFile ( TFile *f );
 	void SetTag     ( const char tag_[]     );
 	void SetPrePath ( const char prepath_[] );
+	void SetLegendLabel   ( const char label_[] ); // -- Set legend labels for all histograms
 };
 
 /////
