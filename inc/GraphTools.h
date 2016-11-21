@@ -12,9 +12,9 @@
 
 const int Colors[5] = {2, 4, 1, 3, 9};
 
-const double leg_pos_x = 0.80;
+const double leg_pos_x = 0.75;
 const double leg_pos_y = 0.80;
-const double leg_wid_x = 0.15;
+const double leg_wid_x = 0.30;
 const double leg_wid_y = 0.10;
 
 struct PlotSettings
@@ -22,6 +22,8 @@ struct PlotSettings
 	std::string PrePath;
 	std::string FullPath;
 	std::string Tag;
+	std::string LegendLabel;
+	int UniqueID;
 
 	bool isLegend = false;
 
@@ -36,10 +38,11 @@ struct PlotSettings
 	double TopMargin    = 0.10;
 	double RightMargin  = 0.10;
 
-	double Legend_Pos_X = 0.75;
-	double Legend_Pos_Y = 0.75;
-	double Legend_Wid_X = 0.10;
-	double Legend_Wid_Y = 0.10;
+	double Legend_Pos_X = 0.60;
+	double Legend_Pos_Y = 0.70;
+	double Legend_Wid_X = 0.28;
+	double Legend_Wid_Y = 0.15;
+	double Legend_Text_Size = 0.025;
 
 	std::map<TObject*, PlotSettings> fPlotMap;
 };

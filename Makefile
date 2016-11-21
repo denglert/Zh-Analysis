@@ -31,12 +31,52 @@
 #RUN_ZH_ANA_nEvents    = -1
 
 # Test
-RUN_ZH_ANA_TAG        = SM_gg_Zh_parton_level
-#RUN_ZH_ANA_TAG        = 2HDMtII_gg_Zh_parton_level
-RUN_ZH_ANA_BINCONFIG  = ./config/bin_test.conf
-RUN_ZH_ANA_COMPCONFIG = ./config/comp_test.conf
-RUN_ZH_ANA_nEvents    = -1
+#RUN_ZH_ANA_TAG        = SM_gg_Zh_parton_level
+##RUN_ZH_ANA_TAG        = 2HDMtII_gg_Zh_parton_level
+#RUN_ZH_ANA_BINCONFIG  = ./config/bin_test.conf
+#RUN_ZH_ANA_COMPCONFIG = ./config/comp_test.conf
+#RUN_ZH_ANA_nEvents    = -1
 
+# - SM: qq + gg -> Zh
+#RUN_ZH_ANA_TAG        = SM_qq_gg_Zh_parton_level
+##RUN_ZH_ANA_TAG        = 2HDMtII_gg_Zh_parton_level
+#RUN_ZH_ANA_BINCONFIG  = ./config/bin_parton_level.conf
+#RUN_ZH_ANA_COMPCONFIG = ./config/comp_SM_qq_gg_Zh_parton_level.conf
+#RUN_ZH_ANA_nEvents    = -1
+
+# - 2HDMtII: qq + gg -> Zh mA = 180
+#RUN_ZH_ANA_TAG        = 2HDMtII_mA_180_qq_gg_Zh_parton_level
+##RUN_ZH_ANA_TAG        = 2HDMtII_gg_Zh_parton_level
+#RUN_ZH_ANA_BINCONFIG  = ./config/bin_parton_level.conf
+#RUN_ZH_ANA_COMPCONFIG = ./config/comp_2HDMtII_B1_mA_180_qq_gg_Zh_parton_level.conf
+#RUN_ZH_ANA_nEvents    = -1
+
+
+# - 2HDMtII: qq + gg -> Zh mA = 200
+#RUN_ZH_ANA_TAG        = 2HDMtII_mA_200_qq_gg_Zh_parton_level
+##RUN_ZH_ANA_TAG        = 2HDMtII_gg_Zh_parton_level
+#RUN_ZH_ANA_BINCONFIG  = ./config/bin_parton_level.conf
+#RUN_ZH_ANA_COMPCONFIG = ./config/comp_2HDMtII_B1_mA_200_qq_gg_Zh_parton_level.conf
+#RUN_ZH_ANA_nEvents    = -1
+
+# - 2HDMtII: qq + gg -> Zh mA = 200
+#RUN_ZH_ANA_TAG        = 2HDMtII_mA_220_qq_gg_Zh_parton_level
+##RUN_ZH_ANA_TAG        = 2HDMtII_gg_Zh_parton_level
+#RUN_ZH_ANA_BINCONFIG  = ./config/bin_parton_level.conf
+#RUN_ZH_ANA_COMPCONFIG = ./config/comp_2HDMtII_B1_mA_220_qq_gg_Zh_parton_level.conf
+#RUN_ZH_ANA_nEvents    = -1
+
+# - MWTC test
+#RUN_ZH_ANA_TAG        = MWTC_test
+#RUN_ZH_ANA_BINCONFIG  = ./config/bin_MWTC_parton_level.conf
+#RUN_ZH_ANA_COMPCONFIG = ./config/comp_MWTC_default.conf
+#RUN_ZH_ANA_nEvents    = -1
+
+# - SM pp Zh default
+#RUN_ZH_ANA_TAG        = SM_pp_Zh_default
+#RUN_ZH_ANA_BINCONFIG  = ./config/bin_parton_level.conf
+#RUN_ZH_ANA_COMPCONFIG = ./config/comp_SM_ppZh_default.conf
+#RUN_ZH_ANA_nEvents    = -1
 
 # gg_Zh LoopInd
 #RUN_ZH_ANA_TAG       = gg_Zh_LoopInd

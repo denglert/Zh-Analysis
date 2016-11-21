@@ -44,7 +44,7 @@ int main(int argc, const char *argv[] )
   for(itPlotMap = AnaFW.hstacks.fPlotMap.begin(); itPlotMap != AnaFW.hstacks.fPlotMap.end(); ++itPlotMap)
   {
     PlotSettings *settings = &itPlotMap->second;
-    settings->DrawingOption = "E";
+    settings->DrawingOption = "";
   }
 
 	AnaFW.CreateOutputFile();

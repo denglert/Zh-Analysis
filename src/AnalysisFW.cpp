@@ -53,6 +53,9 @@ void AnalysisFW::Init()
 		histos[i].Allocate(  &bins );
 		histos[i].SetupBins( &bins ); 
 
+		// Legend labels
+		histos[i].SetLegendLabel( Form("#sigma_{tot} (%s) = %.2f fb",components.component_name[i].c_str(), components.component_xsec[i] ) );
+
 
 		printf("%14s %20.6f %12.2f %12.2f %12.8f\n", components.component_name[i].c_str(), components.component_xsec[i], components.lumi*components.component_xsec[i], components.component_nEvents[i], components.component_scale[i]);
 	}
@@ -117,31 +120,33 @@ void AnalysisFW::MakePlots( )
 	  	 	std::string name        = (*itHisto)->GetName();
 	  	 	std::string figfullpath = prepath+name;
 			TH1D* histo = (TH1D*) (*itHisto);
-			if ( histo->GetEntries() == 0) { printf("%s seems to be empty. No plot created.\n", histo->GetName()); continue;}
 		  	histo->Scale( components.component_scale[iComp], "width" );
+			if ( histo->GetEntries() == 0) { printf("%s seems to be empty. No plot created.\n", histo->GetName()); continue;}
 	  	 	CreatePlot( histo, histos[iComp].fPlotMap[histo] );
     	}
 
 	 }
 
+	 // -- Get an array of size 'nComp' consisting of iterators
     std::set<TObject*>::iterator itHistos[components.nComp];
     for(int iComp = 0; iComp < components.nComp; iComp++)
 	 {
 		itHistos[iComp] = histos[iComp].fCollection.begin();
 	 }
 
+	 // -- Loop over objects in hstacks
     std::set<TObject*>::iterator itStack;
-    for(itStack = hstacks.fCollection.begin(); itStack != hstacks.fCollection.end(); ++itStack)
+    for(itStack = hstacks.fCollection.begin(); itStack != hstacks.fCollection.end(); itStack++)
 	 {
 
 		THStack* hstack = (THStack*) (*itStack);
 
-
-		 bool empty = true;
+		 bool empty = false;
 	    for(int iComp = 0; iComp < components.nComp; iComp++)
 		 {
 			TH1D* histo = (TH1D*) (*itHistos[iComp]);
-			if ( histo->GetEntries() == 0) { empty=true;}
+			printf("histo->GetName(): %s\n ", histo->GetName());
+			if ( histo->GetEntries() == 0) { empty=true; }
 			histo->SetFillColor  ( Colors[iComp] );
 			histo->SetMarkerColor( Colors[iComp] );
 			histo->SetMarkerStyle( 21 );
@@ -155,12 +160,8 @@ void AnalysisFW::MakePlots( )
 			itHistos[iComp]++;
 		 }
 
-		if ( !empty )
-		{
-  	 		std::string name        = hstack->GetName();
-  	 		std::string figfullpath = prepath+name;
-  	 		CreatePlot( hstack, hstacks.fPlotMap[hstack] );
-      }
+		 if ( !empty)
+  	 	 CreatePlot( hstack, hstacks.fPlotMap[hstack] );
 
 	 }
 
