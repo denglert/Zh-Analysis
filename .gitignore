@@ -8,3 +8,4 @@ tmp/
 src/Makefile
 inc/ExRootAnalysis/ExRootTreeReader.h
 .gitignore
+*.pdf
