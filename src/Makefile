@@ -14,8 +14,8 @@ all : ../bin/Zh-Analyzer ../bin/Zh-Parton-Analyzer
 ## -- Linking -- ###
 ####################
 
-LIBDIRLINK = $(HOME)/september/MG5_aMC_v2_2_3/Delphes
-INCDIRLINK = $(HOME)/september/MG5_aMC_v2_2_3/Delphes
+LIBDIRLINK = $(HOME)/lib/links/libs
+INCDIRLINK = $(HOME)/lib/links/inc
 
 #################
 ### -- C++ -- ###
@@ -39,8 +39,8 @@ ROOTCFLAGS = `root-config --cflags`
 #WS_FLAG = MAC
 WS_FLAG = IRIDIS
 
-ROOTLFLAGS = -L/home/mc2r15/include/root5_build/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lm -ldl -lEG
-
+#ROOTLFLAGS = -L/home/de3u14/lib/links/libs/root/root -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lm -ldl
+ROOTLFLAGS = -L/home/de3u14/lib/build/hep/ROOT/build/root_v5.34.36/lib/root -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lm -ldl -lEG
 
 ### General compilation rule for .cpp sources
 ../lib/%.cpp.o : %.cpp
