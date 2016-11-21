@@ -4,3 +4,6 @@ lib/
 backup/
 results/test
 tmp/
+src/Makefile
+inc/ExRootAnalysis/ExRootTreeReader.h
+.gitignore
