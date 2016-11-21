@@ -191,7 +191,10 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 	AllocateArrayXYZ( EtaDistr,  bins->nCat,    bins->nMult, bins->nLevel);
 	AllocateArrayXY ( MinvDistr, bins->nCat,                 bins->nLevel);
 	AllocateArrayXY ( mZhDistr,  bins->nCatmZh,              bins->nLevel);
+	AllocateArrayXY ( backDistr,  bins->nCatmZh,              bins->nLevel);
 	AllocateArrayX  ( nObj,      bins->nCat                              );
+
+	std::cerr << "bins->nCat: " << bins->nCat << std::endl;
 
 	// Plot settings
 	PlotSettings settings;
@@ -242,6 +245,18 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 
 		fCollection.insert(mZhDistr[iCat][iLvl]);
 		fPlotMap[ mZhDistr[iCat][iLvl] ] = settings;
+	}
+
+	loopxy( iCat, iLvl, bins->nCatmZh, bins->nLevel )
+	{
+		std::string histoname_jjmumu = tag+"_"+"back_jjmumu_"+bins->tag_Cat(iCat)+"_"+bins->tag_Level(iLvl)+"-level";
+		std::string label_jjmumu 	  = ";m_{inv}(#mu#mujj) [GeV/c^{2}] "+bins->tag_Cat(iCat)+"_"+bins->label_Level(iLvl)+"-level;dN/dm_{inv}";
+
+		backDistr[iCat][iLvl] = new T();
+		backDistr[iCat][iLvl]->SetNameTitle( histoname_jjmumu.c_str(), label_jjmumu.c_str() );
+
+		fCollection.insert(backDistr[iCat][iLvl]);
+		fPlotMap[ backDistr[iCat][iLvl] ] = settings;
 	}
 
 
@@ -297,6 +312,11 @@ void TH1DContainer::SetupBins ( Binning *bins )
 		mZhDistr[iCat][iLvl]->SetBins( bins->nmZhBins, bins->mZhMin, bins->mZhMax);
 	}
 
+
+	loopxy( iCat, iLvl, bins->nCatmZh, bins->nLevel )
+	{
+		backDistr[iCat][iLvl]->SetBins( bins->nmZhBins, bins->mZhMin, bins->mZhMax);
+	}
 
 	loopx( iCat, bins->nCat)
 	{
@@ -422,4 +442,6 @@ void LoadCutsConfig(    config *conf, Cuts *cuts)
 
 	cuts->cuthMinvMin       = getconfig((*conf), "cuthMinvMin");
 	cuts->cuthMinvMax       = getconfig((*conf), "cuthMinvMax");
+
+	cuts->cutMissingETMax	= getconfig((*conf), "cutMissingETMax");
 }

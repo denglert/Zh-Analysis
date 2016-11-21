@@ -42,15 +42,12 @@ int main(int argc, const char *argv[] )
     PlotSettings *settings = &itPlotMap->second;
     settings->DrawingOption = "E";
   }
-
 	AnaFW.CreateOutputFile();
 	AnaFW.WriteOutput();
-	
 	std::cout << std::endl;
 	AnaFW.MakePlots();
-
 	// Custom plots
-	TCanvas canvas("canvas", "canvas", 600, 600);
+/*	TCanvas canvas("canvas", "canvas", 600, 600);
 
 	gPad->SetLeftMargin(   0.14 );
 	gPad->SetBottomMargin( 0.15 );
@@ -60,9 +57,8 @@ int main(int argc, const char *argv[] )
 	AnaFW.histos[0].mZhDistr[bjet][recocut]->Draw();
 	AnaFW.histos[1].mZhDistr[bjet][recocut]->Draw("SAME");
 	AnaFW.histos[2].mZhDistr[bjet][recocut]->Draw("SAME");
-
 	canvas.SaveAs("plot.pdf");
-	
+*/	
 	return 0;
 
 }

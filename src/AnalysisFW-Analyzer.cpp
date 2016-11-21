@@ -28,14 +28,19 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 	TClonesArray *branchEFlowMuon          = reader->UseBranch("EFlowMuon");
 	TClonesArray *branchEFlowNeutralHadron = reader->UseBranch("EFlowNeutralHadron");
 	TClonesArray *branchJet  		         = reader->UseBranch("Jet");
-
+	TClonesArray *branchMissingET		= reader->UseBranch("MissingET");
 	// - Create physics objects
 	Muon *muA 				 = NULL;
 	Muon *muB 				 = NULL;
+	Electron *elA				 = NULL;
+	Electron *elB				 = NULL;
 	GenParticle *muA_gen  = NULL;
 	GenParticle *muB_gen  = NULL;
+	GenParticle *elA_gen  = NULL;
+	GenParticle *elB_gen  = NULL;
 	Jet *jetA 				 = NULL;
 	Jet *jetB 				 = NULL;
+	MissingET *missingET = NULL;
 	GenParticle *particle = NULL;
 	GenParticle *g0mother = NULL;
 	GenParticle *g1mother = NULL;
@@ -55,6 +60,8 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 	TLorentzVector p_jetA_Const;
 	TLorentzVector p_jetB_Const;
 
+	// - Scalar sum of Z+h constituent pTs
+	double Ht;
 	////////////////////////
 	//                    //
 	// --- Event loop --- //
@@ -78,11 +85,9 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 		// -- Jets -- //
 		////////////////
 
-
 		int nJets = branchJet->GetEntries();
 		int nBJets = 0;
 		histo->nObj[jet]->Fill(nJets);
-
 		// -- First jet iterator -- //
 		for(int iJet = 0; iJet < nJets; iJet++)
 		{
@@ -95,7 +100,6 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 			// Get number of constituents of the jets
 			int nJetAConstituents = jetA->Constituents.GetEntriesFast();
 			histo->nJetConstituents->Fill( nJetAConstituents );
-
 		   // - Loop over all of the jet constituents
 		   for(int iJetConst = 0; iJetConst < nJetAConstituents; iJetConst++)
 		   {
@@ -105,7 +109,6 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 		
 				// Check if the constituent is accessible
 				if(object == 0) continue;
-				
 				if(object->IsA() == GenParticle::Class())
 				{
 				  particle = (GenParticle*) object;
@@ -127,7 +130,6 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				  p_jetA_Const += tower->P4();
 				}
 		   }
-
 
 			// - Single jet distributions
 			// without cuts
@@ -224,7 +226,6 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				// Sum of jetA and JetB
 				TLorentzVector p_jj      = jetA->P4()   + jetB->P4();
 				TLorentzVector p_jj_gene = p_jetA_Const + p_jetB_Const;
-
 				// without cuts
 				histo->MinvDistr[jet]    [reco]->Fill( p_jj.M()        );
 				histo->EtaDistr [jet][di][reco]->Fill( p_jj.Eta()      );
@@ -232,7 +233,6 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				histo->MinvDistr[jet]    [gene]->Fill( p_jj_gene.M()   );
 				histo->PtDistr  [jet][di][gene]->Fill( p_jj_gene.Pt()  );
 				histo->EtaDistr [jet][di][gene]->Fill( p_jj_gene.Eta() );
-
 				// with cuts
 				// Cuts on jetA & jetB are satisfied & also on h candidate
 				if( (CutJet(jetA) == true) && (CutJet(jetB) == true) && ( Cuthcandidate( p_jj ) ) )
@@ -427,6 +427,9 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 	   	jetB = (Jet*) branchJet->At(jJet);
 	   	muA = (Muon*) branchMuon->At(iMuon);
 	   	muB = (Muon*) branchMuon->At(jMuon);
+		muA_gen = (GenParticle*) muA->Particle.GetObject();
+		muB_gen = (GenParticle*) muB->Particle.GetObject();
+
 
 			int nJetAConstituents = jetA->Constituents.GetEntriesFast();
 			int nJetBConstituents = jetB->Constituents.GetEntriesFast();
@@ -513,7 +516,7 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 				histo->mZhDistr[bjet][gene]->Fill( p_jjmumu_gen.M() );
 			}
 
-			if ( (CutJet(jetA) == true) && (CutJet(jetB) == true) && (CutMuon(muB) == true) && (CutMuon(muB)== true) && (Cuthcandidate(p_jj)) && (CutZcandidate(p_mumu))  )
+			if ( (CutJet(jetA) == true) && (CutJet(jetB) == true) && (CutMuon(muA) == true) && (CutMuon(muB)== true) && (Cuthcandidate(p_jj)) && (CutZcandidate(p_mumu))  )
 			{
 				histo->mZhDistr[jet][recocut]->Fill( p_jjmumu.M()     );
 				histo->mZhDistr[jet][genecut]->Fill( p_jjmumu_gen.M() );
@@ -526,6 +529,149 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 			}
 
 		}
+
+		////////////////////////////////
+		// -- background test setup-- // 
+		////////////////////////////////
+
+
+		int nElectrons = branchElectron->GetEntries();
+		int zCandidate = 0;
+
+		//Check exactly two leptons in event
+		if(nMuons == 2){zCandidate=1;}
+		else if(nElectrons == 2){zCandidate=2;}
+		else continue;
+		
+		missingET = (MissingET*) branchMissingET->At(0);		
+		
+		for(int iJet = 0; iJet < nJets; iJet++)
+		for(int jJet = iJet+1; jJet < nJets; jJet++)
+
+		{
+
+	   	jetA = (Jet*) branchJet->At(iJet);
+	   	jetB = (Jet*) branchJet->At(jJet);
+
+			int nJetAConstituents = jetA->Constituents.GetEntriesFast();
+			int nJetBConstituents = jetB->Constituents.GetEntriesFast();
+
+			p_jetB_Const = TLorentzVector(0.0,0.0,0.0,0.0);
+
+			// - Loop over all of the jet constituents
+		   for(int iJetConst = 0; iJetConst < nJetAConstituents; iJetConst++)
+		   {
+		
+				object = NULL;
+		      object = jetA->Constituents.At(iJetConst);
+		
+				// Check if the constituent is accessible
+				if(object == 0) continue;
+				
+				
+				if(object->IsA() == GenParticle::Class())
+				{
+				  particle = (GenParticle*) object;
+				  //	  std::cout << "    GenPart pt: " << particle->PT << ", eta: " << particle->Eta << ", phi: " << particle->Phi << std::endl;
+				  p_jetA_Const += particle->P4();
+				}
+				else if(object->IsA() == Track::Class())
+				{
+				  track = (Track*) object;
+				  //	  std::cout << "    Track pt: " << track->PT << ", eta: " << track->Eta << ", phi: " << track->Phi << std::endl;
+				  p_jetA_Const += track->P4();
+				
+				}
+				else if(object->IsA() == Tower::Class())
+				{
+				  tower = (Tower*) object;
+				  //	  std::cout << "    Tower pt: " << tower->ET << ", eta: " << tower->Eta << ", phi: " << tower->Phi << std::endl;
+				  p_jetA_Const += tower->P4();
+
+				}
+			}
+
+			// - Loop over all of the jet constituents
+		   for(int jJetConst = 0; jJetConst < nJetBConstituents; jJetConst++)
+		   {
+		
+				object = NULL;
+		      object = jetB->Constituents.At(jJetConst);
+		
+				// Check if the constituent is accessible
+				if(object == 0) continue;
+				
+				
+				if(object->IsA() == GenParticle::Class())
+				{
+				  particle = (GenParticle*) object;
+				  //	  std::cout << "    GenPart pt: " << particle->PT << ", eta: " << particle->Eta << ", phi: " << particle->Phi << std::endl;
+				  p_jetB_Const += particle->P4();
+				}
+				else if(object->IsA() == Track::Class())
+				{
+				  track = (Track*) object;
+				  //	  std::cout << "    Track pt: " << track->PT << ", eta: " << track->Eta << ", phi: " << track->Phi << std::endl;
+				  p_jetB_Const += track->P4();
+				
+				}
+				else if(object->IsA() == Tower::Class())
+				{
+				  tower = (Tower*) object;
+				  //	  std::cout << "    Tower pt: " << tower->ET << ", eta: " << tower->Eta << ", phi: " << tower->Phi << std::endl;
+				  p_jetB_Const += tower->P4();
+
+				}
+			}
+
+
+			if (zCandidate == 1)
+			{
+			muA = (Muon*) branchMuon->At(0);
+			muB = (Muon*) branchMuon->At(1);
+		   	muA_gen = (GenParticle*) muA->Particle.GetObject();
+		   	muB_gen = (GenParticle*) muB->Particle.GetObject();
+			
+			TLorentzVector p_jj     = jetA->P4() + jetB->P4();
+			TLorentzVector p_mumu   = muA->P4() + muB->P4();
+			TLorentzVector p_jjmumu     = p_jj + p_mumu;
+			TLorentzVector p_jjmumu_gen = p_jetA_Const + p_jetB_Const + muA_gen->P4() + muB_gen->P4();
+			Ht = muA->PT + muB->PT + jetA->PT + jetB->PT;
+
+
+			if ( (CutJets(jetA, jetB) == true) && (CutMuons(muA, muB) == true) && (Cuthcandidate(p_jj)) & (CutZcandidate(p_mumu)) && (CutMissingET(missingET, Ht)))
+			{
+				histo->backDistr[jet][recocut]->Fill( p_jjmumu.M()     );
+				histo->backDistr[jet][genecut]->Fill( p_jjmumu_gen.M() );
+
+
+			}
+			}
+
+			else if (zCandidate == 2)
+			{
+			elA = (Electron*) branchElectron->At(0);
+			elB = (Electron*) branchElectron->At(1);
+		   	elA_gen = (GenParticle*) elA->Particle.GetObject();
+		   	elB_gen = (GenParticle*) elB->Particle.GetObject();
+
+			TLorentzVector p_jj     = jetA->P4() + jetB->P4();
+			TLorentzVector p_mumu   = elA->P4() + elB->P4();
+			TLorentzVector p_jjmumu     = p_jj + p_mumu;
+			TLorentzVector p_jjmumu_gen = p_jetA_Const + p_jetB_Const + elA_gen->P4() + elB_gen->P4();
+		//	Ht = elA->PT + elB->PT + jetA->PT + jetB->PT;
+
+
+			if ( (CutJets(jetA, jetB) == true) && (CutElectrons(elA, elB)) && (Cuthcandidate(p_jj)) && (CutZcandidate(p_mumu)) && (CutMissingET(missingET, Ht))  )
+			{
+				histo->backDistr[jet][recocut]->Fill( p_jjmumu.M()     );
+				histo->backDistr[jet][genecut]->Fill( p_jjmumu_gen.M() );
+
+			}
+			}
+
+		}
+
 
 		
 		} // end-of-iEv-loop
@@ -670,6 +816,15 @@ bool AnalysisFW::CutJet(Jet* jet)
 	return true;
 }
 
+bool AnalysisFW::CutJets(Jet* jet1, Jet* jet2)
+{
+	if ( jet1->BTag == 0 || jet2->BTag == 0) return false;
+	if ( jet1->PT < cuts.cutJetPtMin && jet2->PT < cuts.cutJetPtMin ) return false;
+	if ( abs(jet1->Eta) > cuts.cutJetEtaMax || abs(jet2->Eta) > cuts.cutJetEtaMax) return false;
+
+	return true;
+}
+
 //
 bool AnalysisFW::CutMuon(Muon* mu)
 {
@@ -680,6 +835,18 @@ bool AnalysisFW::CutMuon(Muon* mu)
 }
 
 //
+
+bool AnalysisFW::CutMuons(Muon* mu1, Muon* mu2)
+{
+	
+	if ( mu1->PT  < cuts.cutMuonPtMin || mu2->PT < cuts.cutMuonPtMin     ) return false;
+	if ( abs(mu1->Eta) > cuts.cutMuonEtaMax && abs(mu2->Eta) > cuts.cutMuonEtaMax) return false;
+	if ( mu1->Charge + mu2->Charge != 0 ) return false;
+
+	return true;
+}
+//
+
 bool AnalysisFW::CutElectron(Electron* el)
 {
 	if ( el->PT  < cuts.cutElectronPtMin ) return false;
@@ -687,6 +854,14 @@ bool AnalysisFW::CutElectron(Electron* el)
 
 	return true;
 
+}
+//
+bool AnalysisFW::CutElectrons(Electron* el1, Electron* el2)
+{
+	if ( el1->PT  < cuts.cutElectronPtMin || el2->PT < cuts.cutElectronPtMin     ) return false;
+	if ( abs(el1->Eta) > cuts.cutElectronEtaMax && abs(el2->Eta) > cuts.cutElectronEtaMax) return false;
+	if ( el1->Charge + el2->Charge != 0 ) return false;
+	return true;
 }
 
 //
@@ -711,6 +886,15 @@ bool AnalysisFW::Cuthcandidate(TLorentzVector const &p)
 	double m = p.M();
 	if ( m < cuts.cuthMinvMin ) return false;
 	if ( cuts.cuthMinvMax < m ) return false;
+
+	return true;
+
+}
+
+bool AnalysisFW::CutMissingET(MissingET* missingET, double Ht)
+{
+
+	if ( missingET->MET/sqrt(Ht) > cuts.cutMissingETMax ) return false;
 
 	return true;
 

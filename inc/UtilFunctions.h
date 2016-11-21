@@ -82,6 +82,7 @@ class ResultContainer
 	T ****EtaDistr;
 	T  ***MinvDistr;
 	T  ***mZhDistr;
+	T  ***backDistr;
 	T   **nObj;
 
 	T *nJetConstituents;
@@ -135,6 +136,7 @@ struct Cuts
 	double cuthMinvMin;
 	double cuthMinvMax;
 
+	double cutMissingETMax;
 };
 
 struct Components

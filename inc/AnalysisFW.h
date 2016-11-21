@@ -29,11 +29,14 @@ class AnalysisFW
 	void Init();
 
 	bool CutJet      ( Jet *jet     );
+	bool CutJets	 ( Jet *jet1, Jet *jet2);
 	bool CutMuon     ( Muon *mu     );
+	bool CutMuons	 ( Muon *mu1, Muon *mu2);
 	bool CutElectron ( Electron *el );
+	bool CutElectrons (Electron *el1, Electron *el2);
 	bool Cuthcandidate ( TLorentzVector const &el );
 	bool CutZcandidate ( TLorentzVector const &el );
-
+	bool CutMissingET (MissingET *missingET, double Ht);
 	int nEvents;
 
 	// - input/output handling
