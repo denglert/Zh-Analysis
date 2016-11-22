@@ -1,17 +1,15 @@
 include Makefile.local
 
-OBJ_Zh_Analyzer = ../lib/Zh-Analyzer.cpp.o $(OBJ_core)
-OBJ_Zh_Parton_Analyzer = ../lib/Zh-Parton-Analyzer.cpp.o $(OBJ_core)
-OBJ_core =  ../lib/GraphTools.cpp.o  ../lib/config.cpp.o ../lib/AnalysisFW.cpp.o ../lib/AnalysisFW-Analyzer.cpp.o ../lib/GlobalConfig.cpp.o ../lib/ResultContainer.cpp.o ../lib/AllocationUtils.cpp.o ../lib/UtilFunctions.cpp.o
+### --- Objects --- ###
+OBJ_$(ANALYSIS) = ../lib/Analysis-$(ANALYSIS).cpp.o $(OBJ_core)
+OBJ_core =  ../lib/ResultContainer.cpp.o ../lib/AllocationUtils.cpp.o ../lib/UtilFunctions.cpp.o ../lib/GraphTools.cpp.o  ../lib/config.cpp.o ../lib/GlobalConfig.cpp.o  $(OBJ_AnaFW)
+OBJ_AnaFW = ../lib/AnalysisFW.cpp.o ../lib/AnalysisFW-ObjSelection.cpp.o ../lib/RunAnalysis.cpp.o
 
-../bin/Zh-Analyzer: $(OBJ_Zh_Analyzer)
+### --- Binary --- ###
+../bin/RunAnalysis-$(ANALYSIS): $(OBJ_$(ANALYSIS))
 	LD_LIBRARY_PATH=$(VAR_LD_LIBRARY_PATH) $(CC) $^ $(CLFLAGS) -o $@
 
-../bin/Zh-Parton-Analyzer: $(OBJ_Zh_Parton_Analyzer)
-	LD_LIBRARY_PATH=$(VAR_LD_LIBRARY_PATH) $(CC) $^ $(CLFLAGS) -o $@
-
-all : ../bin/Zh-Analyzer ../bin/Zh-Parton-Analyzer
-
+all : ../bin/RunAnalysis-$(ANALYSIS)
 
 #################
 ### -- C++ -- ###
@@ -41,5 +39,5 @@ include .depend_cpp
 
 clean : 
 	rm ../lib/*
-	rm    ./src/.depend_cpp
-	touch ./src/.depend_cpp
+	rm    .depend_cpp
+	touch .depend_cpp

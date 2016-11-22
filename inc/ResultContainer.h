@@ -4,6 +4,11 @@
 #include <map>
 #include <set>
 #include "UtilFunctions.h"
+#include "AllocationUtils.h"
+
+///////////////////////////
+// -- ResultContainer -- //
+///////////////////////////
 
 template <typename T>
 class ResultContainer
@@ -35,13 +40,19 @@ class ResultContainer
 	void SetLegendLabel  ( const char label_[]   ); // -- Set legend labels for all histograms
 };
 
-// --
+
+///////////////////////////
+// -- Derived classes -- //
+///////////////////////////
+
+// -- THStackContainer -- //
 class THStackContainer: public ResultContainer<THStack>
 {
 	public:
 };
 
-// -- 
+
+// -- TH1DContainer -- //
 class TH1DContainer: public ResultContainer<TH1D>
 {
 	public:
