@@ -4,6 +4,7 @@ lib/
 backup/
 results/*
 config/*
+notes/*
 tmp/
 src/Makefile
 inc/ExRootAnalysis/ExRootTreeReader.h
