@@ -2,7 +2,7 @@ include Makefile.local
 
 OBJ_Zh_Analyzer = ../lib/Zh-Analyzer.cpp.o $(OBJ_core)
 OBJ_Zh_Parton_Analyzer = ../lib/Zh-Parton-Analyzer.cpp.o $(OBJ_core)
-OBJ_core = ../lib/GraphTools.cpp.o ../lib/UtilFunctions.cpp.o ../lib/config.cpp.o ../lib/AnalysisFW.cpp.o ../lib/AnalysisFW-Analyzer.cpp.o ../lib/GlobalConfig.cpp.o
+OBJ_core =  ../lib/GraphTools.cpp.o  ../lib/config.cpp.o ../lib/AnalysisFW.cpp.o ../lib/AnalysisFW-Analyzer.cpp.o ../lib/GlobalConfig.cpp.o ../lib/ResultContainer.cpp.o ../lib/AllocationUtils.cpp.o ../lib/UtilFunctions.cpp.o
 
 ../bin/Zh-Analyzer: $(OBJ_Zh_Analyzer)
 	LD_LIBRARY_PATH=$(VAR_LD_LIBRARY_PATH) $(CC) $^ $(CLFLAGS) -o $@

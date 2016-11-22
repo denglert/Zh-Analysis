@@ -5,6 +5,7 @@
 #include "ExRootAnalysis/ExRootTreeReader.h"
 #include <TClonesArray.h>
 #include "UtilFunctions.h"
+#include "ResultContainer.h"
 #include "GraphTools.h"
 #include <map>
 #include <cmath>

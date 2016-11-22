@@ -5,11 +5,13 @@
 #include <iostream>
 #include <vector>
 #include <set>
+#include <map>
 #include <TH1D.h>
 #include <TFile.h>
 #include <THStack.h>
 #include "config.h"
 #include "GraphTools.h"
+#include "AllocationUtils.h"
 
 #define loopx(x, nx)                 for( int x = 0; x < nx; x++)
 #define loopxy(x, y, nx, ny)         for( int x = 0; x < nx; x++)for( int y = 0; y < ny; y++)
@@ -73,50 +75,6 @@ class Binning
 	  	
 };
 
-///
-template <typename T>
-class ResultContainer
-{
-	public:
-	T ****PtDistr;
-	T ****EtaDistr;
-	T  ***MinvDistr;
-	T  ***mZhDistr;
-	T  ***backDistr;
-	T   **nObj;
-
-	T *nJetConstituents;
-	T *ZThetaDistr;
-
-	std::set<TObject*> fCollection;
-	std::map<TObject*, PlotSettings> fPlotMap;
-
-	std::string tag;
-	std::string prepath;
-
-	ResultContainer ( ){};
-	ResultContainer ( const char tag_[], const char prepath_[] );
-
-	void Allocate   ( Binning *bins );
-	void WriteToROOTFile ( TFile *f );
-	void SetTag     ( const char tag_[]     );
-	void SetPrePath ( const char prepath_[] );
-	void SetLegendLabel   ( const char label_[] ); // -- Set legend labels for all histograms
-};
-
-/////
-class THStackContainer: public ResultContainer<THStack>
-{
-	public:
-};
-
-////
-class TH1DContainer: public ResultContainer<TH1D>
-{
-	public:
-	void SetupBins  ( Binning *bins  );
-};
-
 ////
 struct Cuts
 {
@@ -168,15 +126,5 @@ std::string tag_Level          ( const int id );
 void progress_bar( double percent );
 
 void LoadCutsConfig(    config *conf, Cuts *cuts);
-
-// --- Allocation functions
-template<class TYPE>
-void AllocateArrayX(TYPE **&a, int n1);
-
-template<class TYPE>
-void AllocateArrayXY(TYPE ***&a, int n1, int n2);
-
-template<class TYPE>
-void AllocateArrayXYZ(TYPE ****&a, int n1, int n2, int n3);
 
 #endif
