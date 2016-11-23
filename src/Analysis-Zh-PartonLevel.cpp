@@ -31,7 +31,6 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 	TLorentzVector p_h;
 	TLorentzVector p_Z;
 
-
    ////////////////////////
    //                    //
    // --- Event loop --- //
