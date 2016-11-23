@@ -10,7 +10,7 @@
 #include <map>
 #include <cmath>
 
-// - AnalysisFW class
+// - AnalysisFW -- //
 class AnalysisFW
 {
 
@@ -60,7 +60,7 @@ class AnalysisFW
 	std::string compConfigFilePath;
 
 	config conf;
-};
 
+};
 
 #endif

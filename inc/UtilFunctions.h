@@ -19,7 +19,7 @@
 
 #define MAXNCOMPONENT 10
 
-///
+// -- Binning -- //
 class Binning
 {
 
@@ -49,10 +49,6 @@ class Binning
 	std::string label_Mult (const int  id);
 	std::string label_Level  (const int  id);
 
-//	std::string *strCatName  = NULL;
-//	std::string *strLvlName  = NULL;
-//	std::string *strMultName = NULL;
-
 	double nPtBins;
 	double PtMin;
 	double PtMax;
@@ -75,7 +71,8 @@ class Binning
 	  	
 };
 
-////
+
+// -- Cuts -- //
 struct Cuts
 {
 	double cutMuonPtMin;
@@ -99,6 +96,9 @@ struct Cuts
 	double cutMissingETMax;
 };
 
+void LoadCutsConfig(    config *conf, Cuts *cuts);
+
+// -- Components -- //
 struct Components
 {
 	double lumi;
@@ -112,10 +112,8 @@ struct Components
 	int         component_color   [MAXNCOMPONENT];
 };
 
-enum Category { jet,     bjet,   mu          };
-enum Level    { gene, genecut, reco, recocut };
-enum Mult     { mono,      di                };
 
+// -- Default labels -- //
 std::string label_Cat          ( const int id );
 std::string label_Level        ( const int id );
 std::string label_Multiplicity ( const int id );
@@ -123,8 +121,7 @@ std::string tag_Cat            ( const int id );
 std::string tag_Multiplicity   ( const int id );
 std::string tag_Level          ( const int id );
 
+// -- Progress bar -- //
 void progress_bar( double percent );
-
-void LoadCutsConfig(    config *conf, Cuts *cuts);
 
 #endif

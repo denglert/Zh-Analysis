@@ -1,5 +1,13 @@
 #include "AnalysisFW.h"
 
+///////////////////////////////
+// -- Category/Level/Mult -- //
+///////////////////////////////
+
+enum Category { jet,     bjet,   mu          };
+enum Level    { gene, genecut, reco, recocut };
+enum Mult     { mono,      di                };
+
 ////////////////////
 //                //
 // -- Analyzer -- //

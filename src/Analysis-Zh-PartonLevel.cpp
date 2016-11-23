@@ -1,5 +1,13 @@
 #include "AnalysisFW.h"
 
+///////////////////////////////
+// -- Category/Level/Mult -- //
+///////////////////////////////
+
+enum Category { bjet   };
+enum Level    { parton };
+enum Mult     { defa   };
+
 ////////////////////
 //                //
 // -- Analyzer -- //
@@ -106,7 +114,7 @@ void AnalysisFW::Analyzer( TChain *chain, ResultContainer<TH1D> *histo)
 
 		TLorentzVector p_Zh = p_Z + p_h;	
 
-		histo->mZhDistr[0][0] -> Fill( p_Zh.M() );
+		histo->mZhDistr[bjet][defa] -> Fill( p_Zh.M() );
 
 
 	}
