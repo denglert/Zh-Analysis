@@ -153,7 +153,7 @@ void AnalysisFW::MakePlots( )
 	    for(int iComp = 0; iComp < components.nComp; iComp++)
 		 {
 			TH1D* histo = (TH1D*) (*itHistos[iComp]);
-			printf("histo->GetName(): %s\n ", histo->GetName());
+//			printf("histo->GetName(): %s\n ", histo->GetName());
 			if ( histo->GetEntries() == 0) { empty=true; }
 			histo->SetFillColor  ( Colors[iComp] );
 			histo->SetMarkerColor( Colors[iComp] );
