@@ -1,0 +1,10 @@
+bin/
+lib/
+*.depend_cpp
+backup/
+results/*
+config/*
+tmp/
+src/Makefile.local
+inc/ExRootAnalysis/ExRootTreeReader.h
+*.pdf

@@ -4,6 +4,7 @@
 // -- AnalysisFW -- //
 //////////////////////
 
+// -- AnalysisFW::Init() -- //
 void AnalysisFW::Init()
 {
 
@@ -77,11 +78,14 @@ void AnalysisFW::Init()
 
 
 
+// -- AnalysisFW constructor -- //
 AnalysisFW::AnalysisFW( )
 {
   	chain = new TChain("Delphes");
 }
 
+
+// -- AnalysisFW::CreateOutputFile() -- //
 void AnalysisFW::CreateOutputFile( )
 {
 	std::string prepath    = "./results/"+tag+"/";
@@ -89,6 +93,8 @@ void AnalysisFW::CreateOutputFile( )
 	output = new TFile(outputfile.c_str(),"RECREATE");
 }
 
+
+// -- AnalysisFW::WriteOutput() -- //
 void AnalysisFW::WriteOutput( )
 {
 
@@ -103,6 +109,8 @@ void AnalysisFW::WriteOutput( )
 //  }
 }
 
+
+// -- AnalysisFW::MakePlots() -- //
 void AnalysisFW::MakePlots( )
 {
 
@@ -145,7 +153,7 @@ void AnalysisFW::MakePlots( )
 	    for(int iComp = 0; iComp < components.nComp; iComp++)
 		 {
 			TH1D* histo = (TH1D*) (*itHistos[iComp]);
-			printf("histo->GetName(): %s\n ", histo->GetName());
+//			printf("histo->GetName(): %s\n ", histo->GetName());
 			if ( histo->GetEntries() == 0) { empty=true; }
 			histo->SetFillColor  ( Colors[iComp] );
 			histo->SetMarkerColor( Colors[iComp] );

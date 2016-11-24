@@ -109,6 +109,7 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 		fPlotMap[ mZhDistr[iCat][iLvl] ] = settings;
 	}
 
+	// What's this Matt?
 	loopxy( iCat, iLvl, bins->nCatmZh, bins->nLevel )
 	{
 		std::string histoname_jjmumu = tag+"_"+"back_jjmumu_"+bins->tag_Cat(iCat)+"_"+bins->tag_Level(iLvl)+"-level";
