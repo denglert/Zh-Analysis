@@ -194,6 +194,7 @@ void AnalysisFW::MakePlots( )
 //  	  histogram = 0;
 //  	  stack = 0;
 //
+//
 //  	  if(object->IsA()->InheritsFrom(TH1::Class()))
 //  	  {
 //  	    histogram = static_cast<TH1*>(object);

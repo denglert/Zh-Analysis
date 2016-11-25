@@ -20,6 +20,7 @@ class ResultContainer
 	T  ***mZhDistr;
 	T  ***backDistr;
 	T   **nObj;
+	T   **nEvents;
 
 	T *nJetConstituents;
 	T *ZThetaDistr;

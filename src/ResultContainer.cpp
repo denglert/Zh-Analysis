@@ -57,6 +57,7 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 	AllocateArrayXY ( mZhDistr,  bins->nCatmZh,              bins->nLevel);
 	AllocateArrayXY ( backDistr,  bins->nCatmZh,              bins->nLevel);
 	AllocateArrayX  ( nObj,      bins->nCat                              );
+	AllocateArrayX  ( nEvents,   bins->nLevel);
 
 	// Plot settings
 	PlotSettings settings;
@@ -109,7 +110,7 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 		fPlotMap[ mZhDistr[iCat][iLvl] ] = settings;
 	}
 
-	// What's this Matt?
+	// Histograms for background test/analysis cuts test
 	loopxy( iCat, iLvl, bins->nCatmZh, bins->nLevel )
 	{
 		std::string histoname_jjmumu = tag+"_"+"back_jjmumu_"+bins->tag_Cat(iCat)+"_"+bins->tag_Level(iLvl)+"-level";
@@ -133,6 +134,19 @@ void ResultContainer<T>::Allocate ( Binning *bins )
 
 		fCollection.insert( nObj[iCat]);
 		fPlotMap[ nObj[iCat] ] = settings;
+	}
+
+	loopx( iLvl, bins->nLevel)
+	{
+		std::string histoname_nevents = tag+"_"+bins->tag_Level(iLvl);
+		std::string label_nevents	= ";N_{"+bins->label_Level(iLvl)+"}";
+
+		nEvents[iLvl] = new T();
+		nEvents[iLvl]->SetNameTitle( histoname_nevents.c_str(), label_nevents.c_str() );
+
+		fCollection.insert( nEvents[iLvl]);
+		fPlotMap[ nEvents[iLvl] ] = settings;
+
 	}
 
 	std::string ZThetaDistr_name = tag+"_"+"ZThetaDistr";
@@ -197,6 +211,11 @@ void TH1DContainer::SetupBins ( Binning *bins )
 	loopx( iCat, bins->nCat)
 	{
 		nObj[iCat]->SetBins( bins->nObjBins, bins->ObjMin, bins->ObjMax );
+	}
+
+	loopx( iLvl, bins->nLevel)
+	{
+		nEvents[iLvl]->SetBins( bins->nEventsBins, bins->EventMin, bins->EventMax );
 	}
 
 	ZThetaDistr     ->SetBins( 100, -0.1, 3.15 );

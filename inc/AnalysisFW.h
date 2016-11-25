@@ -27,6 +27,7 @@ class AnalysisFW
 
 	void Init();
 
+	int LeptonCount  ( int nMuons, int nElectrons);
 	bool CutJet      ( Jet *jet     );
 	bool CutJets	 ( Jet *jet1, Jet *jet2);
 	bool CutMuon     ( Muon *mu     );

@@ -68,7 +68,10 @@ class Binning
 	double nObjBins;
 	double ObjMin;
 	double ObjMax;
-	  	
+
+	double nEventsBins;
+	double EventMin;
+	double EventMax;	  	
 };
 
 

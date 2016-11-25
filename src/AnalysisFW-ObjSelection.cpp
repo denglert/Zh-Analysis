@@ -25,6 +25,16 @@ bool AnalysisFW::CutJets(Jet* jet1, Jet* jet2)
 	return true;
 }
 
+// - LeptonCount
+int AnalysisFW::LeptonCount(int nMuons, int nElectrons)
+{
+	if(nMuons == 2) return 1;
+	if(nElectrons == 2) return 2;
+
+	return 3; //Failure condition
+
+}
+
 // - CutMuon
 bool AnalysisFW::CutMuon(Muon* mu)
 {

@@ -137,6 +137,10 @@ void Binning::LoadBinningConfig( config *conf)
 	ObjMin    = getconfig((*conf), "ObjMin");
 	ObjMax    = getconfig((*conf), "ObjMax");
 
+	nEventsBins  = getconfig((*conf), "nEventsBins");
+	EventMin    = getconfig((*conf), "EventMin");
+	EventMax    = getconfig((*conf), "EventMax");
+
 
 	for(int i=0; i<nCat; i++)
 	{

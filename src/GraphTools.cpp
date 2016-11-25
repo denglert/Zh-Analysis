@@ -1,4 +1,5 @@
 #include "GraphTools.h"
+#include <iostream>
 
 TStyle* TStyle_Scheme ()
 {
@@ -27,7 +28,6 @@ template<class T>
 void CreatePlot ( T *obj, PlotSettings const& settings)
 {
 	TCanvas canvas("canvas", "canvas", 600, 600);
-
 	gPad->SetLeftMargin( settings.LeftMargin  );
 	gPad->SetBottomMargin( settings.BottomMargin );
 
@@ -57,7 +57,6 @@ void CreatePlot ( T *obj, PlotSettings const& settings)
 	leg->Draw("SAME");
 
 	}
-
 
 	canvas.SaveAs(outfig.c_str());
 }
