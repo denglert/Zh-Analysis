@@ -1,7 +1,7 @@
 export ANALYSIS=Zh-PartonLevel
 export TAG=test
-export BINCONFIG=./config/bin.conf
-export COMPCONFIG=./config/comp.conf
+export BINCONFIG=./config/bin_test.conf
+export COMPCONFIG=./config/comp_test.conf
 export nEvents=-1
 
 make build ANALYSIS=${ANALYSIS}
