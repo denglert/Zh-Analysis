@@ -1,10 +1,12 @@
-export ANALYSIS=Zh-PartonLevel
+export EVT_ANALYSIS=Zh-PartonLevel
+#export MAIN_ANALYSIS=RunAnalysis
+export MAIN_ANALYSIS=RunAnalysis-custom
 export TAG=test
 export BINCONFIG=./config/bin_test.conf
 export COMPCONFIG=./config/comp_test.conf
 export nEvents=-1
 
-make build ANALYSIS=${ANALYSIS}
+make build EVT_ANALYSIS=${EVT_ANALYSIS} MAIN_ANALYSIS=${MAIN_ANALYSIS}
 ./scripts/createWD.sh
 
 echo ""
@@ -17,4 +19,4 @@ echo "nEvents:    ${BINCONFIG}"
 echo "-------------------------"
 echo ""
 
-./bin/RunAnalysis-${ANALYSIS} ${TAG} ${COMPCONFIG} ${BINCONFIG} ${nEvents}
+./bin/${MAIN_ANALYSIS}-${EVT_ANALYSIS} ${TAG} ${COMPCONFIG} ${BINCONFIG} ${nEvents}

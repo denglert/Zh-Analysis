@@ -1,15 +1,15 @@
 include Makefile.local
 
 ### --- Objects --- ###
-OBJ_$(ANALYSIS) = ../lib/Analysis-$(ANALYSIS).cpp.o $(OBJ_core)
+OBJ_$(EVT_ANALYSIS) = ../lib/Analysis-$(EVT_ANALYSIS).cpp.o $(OBJ_core)
 OBJ_core =  ../lib/ResultContainer.cpp.o ../lib/AllocationUtils.cpp.o ../lib/UtilFunctions.cpp.o ../lib/GraphTools.cpp.o  ../lib/config.cpp.o ../lib/GlobalConfig.cpp.o  $(OBJ_AnaFW)
-OBJ_AnaFW = ../lib/AnalysisFW.cpp.o ../lib/AnalysisFW-ObjSelection.cpp.o ../lib/RunAnalysis.cpp.o
+OBJ_AnaFW = ../lib/AnalysisFW.cpp.o ../lib/AnalysisFW-ObjSelection.cpp.o ../lib/$(MAIN_ANALYSIS).cpp.o
 
 ### --- Binary --- ###
-../bin/RunAnalysis-$(ANALYSIS): $(OBJ_$(ANALYSIS))
+../bin/$(MAIN_ANALYSIS)-$(EVT_ANALYSIS): $(OBJ_$(EVT_ANALYSIS))
 	LD_LIBRARY_PATH=$(VAR_LD_LIBRARY_PATH) $(CC) $^ $(CLFLAGS) -o $@
 
-all : ../bin/RunAnalysis-$(ANALYSIS)
+all : ../bin/$(MAIN_ANALYSIS)-$(EVT_ANALYSIS)
 
 #################
 ### -- C++ -- ###
